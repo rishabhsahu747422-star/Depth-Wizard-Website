@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard — Single-View Height Estimation &amp; 3D Terrain Reconstruction. Automated monocular elevation extraction, per-land-cover scale calibration, and interactive 3D flythrough from optical imagery.">
   <title>DepthWizard — Single-View Height Estimation &amp; 3D Terrain Reconstruction</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
@@ -267,7 +270,7 @@
                 &sigma;&sup2;(x, y) = (1 / N) &sum; [ h_i(x, y) - &mu;(x, y) ]&sup2;
               </div>
               <div style="font-size: 0.85rem; color: #6b21a8;">
-                Computed via N stochastic Monte Carlo forward passes at inference
+                Computed via N fixed test-time augmentation (TTA) passes at inference
               </div>
             </div>
             <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; padding-left: 1.25rem;">

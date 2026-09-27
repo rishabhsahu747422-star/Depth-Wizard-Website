@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard Documentation — Single-View Height Estimation & 3D Terrain Reconstruction.">
   <title>DepthWizard Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
@@ -60,8 +63,8 @@
               <div class="doc-sidebar-title">1. Foundations</div>
               <ul class="doc-sidebar-list">
                 <li><a href="overview.html" class="doc-sidebar-link ">01. Project Overview</a></li>
-                <li><a href="problem.html" class="doc-sidebar-link active">02. Problem Understanding</a></li>
-                <li><a href="architecture.html" class="doc-sidebar-link ">03. System Architecture</a></li>
+                <li><a href="problem.html" class="doc-sidebar-link active">02. Problem &amp; Background</a></li>
+                <li><a href="architecture.html" class="doc-sidebar-link ">03. Proposed Solution</a></li>
               </ul>
             </div>
             <div class="doc-sidebar-group">
@@ -102,34 +105,66 @@
             <span>/</span>
             <a href="../../documentation/index.html">Documentation</a>
             <span>/</span>
-            <span>Problem Understanding & Theoretical Challenges</span>
+            <span>Problem Definition &amp; Background</span>
           </div>
     <article class="doc-article">
             <div style="margin-bottom: 2rem;">
               <span class="badge badge-blue" style="margin-bottom: 0.5rem;">1. Foundations</span>
-              <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem;">Problem Understanding & Theoretical Challenges</h1>
-              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">The physics of monocular depth estimation, nadir perspective domain gaps, and scale-offset ambiguity.</p>
+              <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem;">Problem Definition &amp; Background</h1>
+              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">What DepthWizard solves, why conventional elevation capture falls short, and the published research this work builds on.</p>
             </div>
             <div class="doc-toc-card" data-doc-toc></div>
     
       <section class="doc-section">
-        <h2 id="limitations-traditional">1. Limitations of Conventional Elevation Capture</h2>
+        <h2 id="task-definition">1. Task Definition</h2>
+        <p>DepthWizard addresses a single, precisely-scoped task: given one optical remote-sensing image of a scene &mdash; and nothing else &mdash; recover the physical height of every visible surface, and render the result as a navigable 3D terrain model.</p>
+        <p>The task splits into two inputs the pipeline must handle differently, because they carry different amounts of geometric information:</p>
+        <ul>
+          <li><strong>Non-georeferenced imagery</strong> (ordinary PNG/JPG, no coordinate metadata): the output is a <em>relative</em> DSM &mdash; heights are internally consistent (a building is correctly taller than a nearby car) but not tied to a real-world unit until externally anchored.</li>
+          <li><strong>Georeferenced imagery</strong> (GeoTIFF with embedded spatial reference): the output is an <em>absolute, metric</em> DSM in meters, produced by anchoring the relative prediction against a coarse public elevation reference (SRTM 30&nbsp;m) or, where available, a small number of ground control points.</li>
+        </ul>
+        <p>The finished DSM is then projected onto a 3D terrain mesh, textured with the source RGB, and made explorable as a first-person flythrough directly in the browser &mdash; the intended end use is a domain expert (a disaster-response planner, a geospatial analyst) inspecting a site they have only a single photograph of, without waiting on a satellite tasking request or a LiDAR survey.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="evaluation-framing">2. What "Correct" Means Here</h2>
+        <p>Two properties are being optimized simultaneously, and they are graded independently rather than blended into one score:</p>
+        <ul>
+          <li><strong>Elevation accuracy</strong> &mdash; how close the predicted height at every pixel is to a reference measurement (RMSE, MAE, correlation), assessed across distinct terrain regimes: dense urban cores, sparse suburban, hilly, and forested. A model tuned only on flat cityscapes and never checked against hilly terrain is not actually solving this task, only a convenient subset of it.</li>
+          <li><strong>Visualization fidelity</strong> &mdash; whether the resulting 3D scene is something a human can actually navigate and trust: correct RGB-to-mesh projection, rendering stability, interface responsiveness, and standalone deployability without a live internet dependency.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="limitations-traditional">3. Limitations of Conventional Elevation Capture</h2>
         <p>High-resolution Digital Elevation Models (DEMs) and Digital Surface Models (DSMs) are fundamental to modern environmental governance, civil engineering, disaster flood modeling, and tactical reconnaissance. However, existing capture pipelines present severe operational bottlenecks:</p>
         <ul>
           <li><strong>Airborne LiDAR:</strong> Extremely high precision (&plusmn;0.05m) but cost-prohibitive, requiring dedicated flight corridors, good weather, and heavy sensor logistics.</li>
           <li><strong>Stereo-Optical Photogrammetry:</strong> Demands multiple overlapping satellite passes from identical orbital trajectories, introducing significant latency and cloud cover vulnerability.</li>
           <li><strong>InSAR (Interferometric Radar):</strong> Sensitive to surface decoherence, atmospheric delay, and steep terrain layover distortions.</li>
         </ul>
+        <p>Single-view optical height estimation trades some of this precision for near-zero acquisition latency: any existing satellite or aerial photograph becomes a usable input, with no repeat pass, no dedicated flight, and no radar hardware required.</p>
       </section>
 
       <section class="doc-section">
-        <h2 id="nadir-gap">2. The Nadir Remote-Sensing Domain Gap</h2>
-        <p>Foundational computer vision models are predominantly trained on horizontal perspective datasets (indoor scenes, autonomous driving). When applied to top-down (nadir) satellite imagery, conventional perspective cues (vanishing points, horizon compression) are completely absent. Depth estimation must rely entirely on solar cast shadows, roof edge geometry, and texture frequency.</p>
+        <h2 id="nadir-gap">4. The Nadir Remote-Sensing Domain Gap</h2>
+        <p>Foundational computer vision models are predominantly trained on horizontal perspective datasets (indoor scenes, autonomous driving). When applied to top-down (nadir) satellite imagery, conventional perspective cues (vanishing points, horizon compression) are completely absent. Depth estimation must rely entirely on solar cast shadows, roof edge geometry, and texture frequency &mdash; the same domain gap that motivates treating this as a distinct research problem from general-purpose monocular depth estimation (see <a href="../../pages/references.html#ref-1">Fu et al., 2018</a>).</p>
       </section>
 
       <section class="doc-section">
-        <h2 id="scale-ambiguity">3. The Scale-Offset Ambiguity</h2>
-        <p>Monocular depth estimation is mathematically ill-posed: an infinite set of real-world 3D geometries can project onto the exact same 2D pixel array. Neural models predict <em>relative depth</em> normalized to arbitrary internal tensors. Converting these features into true metric heights in meters requires an external geospatial anchor (SRTM 30m) coupled with semantic material compensation.</p>
+        <h2 id="scale-ambiguity">5. The Scale-Offset Ambiguity</h2>
+        <p>Monocular depth estimation is mathematically ill-posed: an infinite set of real-world 3D geometries can project onto the exact same 2D pixel array. Neural models predict <em>relative depth</em> normalized to arbitrary internal tensors. Converting these features into true metric heights in meters requires an external geospatial anchor (SRTM 30m, <a href="../../pages/references.html#ref-7">Farr et al., 2007</a>) coupled with semantic material compensation (<a href="../../pages/references.html#ref-6">Srivastava et al., 2017</a>).</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="prior-work">6. Prior Work</h2>
+        <p>Three lines of published research directly inform DepthWizard's design, beyond the depth-estimation backbone itself:</p>
+        <ul>
+          <li><a href="../../pages/references.html#ref-5">Ghamisi &amp; Yokoya (2018)</a> is, to our knowledge, the closest published precedent to this exact task &mdash; simulating a height map from a single image via a conditional GAN. It establishes that single-view height recovery is a tractable learning problem, though its generative formulation differs from the discriminative, foundation-model-backbone approach used here.</li>
+          <li><a href="../../pages/references.html#ref-6">Srivastava et al. (2017)</a> demonstrates that fusing semantic land-cover context into height prediction measurably improves accuracy &mdash; the direct precedent for DepthWizard's per-class scale calibration (see <a href="land-cover-calibration.html">Per-Class Calibration</a>).</li>
+          <li><a href="../../pages/references.html#ref-4">Mou &amp; Zhu (2018)</a>, IM2HEIGHT, is the earliest fully-convolutional formulation of monocular height estimation as a direct regression problem, and remains a standard baseline that later ordinal-regression and transformer-based methods (including the backbone used here) are measured against.</li>
+        </ul>
+        <p>The complete, individually-verified bibliography is maintained on the <a href="../../pages/references.html">References</a> page.</p>
       </section>
 </article>        </div>
       </div>

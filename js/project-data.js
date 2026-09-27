@@ -39,7 +39,7 @@ window.DEPTHWIZARD_DATA = {
     {
       id: "q4",
       question: "How is estimation uncertainty surfaced to operational users?",
-      answer: "Using Monte Carlo Dropout and test-time perturbation ensembles at inference time to generate a pixel-level variance map. This is rendered as an interactive, toggleable confidence heatmap in the 3D viewer, alerting users to areas where height predictions are less certain."
+      answer: "Using test-time augmentation (TTA) — a fixed ensemble of flips and brightness/gamma perturbations — at inference time to generate a pixel-level variance map. This is rendered as an interactive, toggleable confidence heatmap in the 3D viewer, alerting users to areas where height predictions are less certain."
     }
   ],
 
@@ -68,7 +68,7 @@ window.DEPTHWIZARD_DATA = {
     {
       step: "04",
       name: "Uncertainty & Confidence Estimation",
-      desc: "Innovation #2: Test-time Monte Carlo Dropout produces per-pixel variance/confidence maps (8-bit grayscale), highlighting structural ambiguities, occluded building shadows, and vegetation canopy variance.",
+      desc: "Innovation #2: Test-time augmentation (TTA) produces per-pixel variance/confidence maps (8-bit grayscale), highlighting structural ambiguities, occluded building shadows, and vegetation canopy variance.",
       status: "Implemented",
       badge: "Innovation 2"
     },

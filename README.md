@@ -12,7 +12,7 @@ This repository contains an open scientific research publication and engineering
 - **Project Name:** DepthWizard
 - **Sub-Title:** Single-View Height Estimation & 3D Terrain Reconstruction
 - **Domain:** Geospatial Remote Sensing / Computer Vision / 3D Topographical Modeling
-- **Core Technology:** Depth Anything V2 (Vision Transformer backbone), GAMUS Dataset, SRTM 30m Global DEM, Monte Carlo Dropout Uncertainty Quantification, and Three.js 3D Flythrough.
+- **Core Technology:** Depth Anything V2 (Vision Transformer backbone), GAMUS Dataset, SRTM 30m Global DEM, Test-Time Augmentation (TTA) Uncertainty Quantification, and Three.js 3D Flythrough.
 
 ---
 
@@ -107,7 +107,7 @@ The website is engineered from scratch to be **100% compatible with GitHub Pages
 
 - **Backbone:** Depth Anything V2 (ViT architecture adapted for nadir remote-sensing geometry).
 - **Scale Calibration (Innovation #1):** Semantic land-cover masking reducing building height error by ~44% and tree canopy error by ~35% over global affine fits.
-- **Uncertainty Mapping (Innovation #2):** Monte Carlo Dropout test-time sampling yielding actionable per-pixel confidence heatmaps.
+- **Uncertainty Mapping (Innovation #2):** Test-time augmentation (TTA) sampling yielding actionable per-pixel confidence heatmaps. (An initial Monte Carlo Dropout approach was tried first and dropped — the backbone's dropout is 0 by default, so it produced no signal.)
 - **3D Flythrough:** 16-bit grayscale heightmap decoding driving GPU vertex displacement with first-person flight controls.
 
 ---

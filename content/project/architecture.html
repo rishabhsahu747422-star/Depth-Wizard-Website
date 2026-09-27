@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard Documentation — Single-View Height Estimation & 3D Terrain Reconstruction.">
   <title>DepthWizard Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
@@ -60,8 +63,8 @@
               <div class="doc-sidebar-title">1. Foundations</div>
               <ul class="doc-sidebar-list">
                 <li><a href="overview.html" class="doc-sidebar-link ">01. Project Overview</a></li>
-                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem Understanding</a></li>
-                <li><a href="architecture.html" class="doc-sidebar-link active">03. System Architecture</a></li>
+                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem &amp; Background</a></li>
+                <li><a href="architecture.html" class="doc-sidebar-link active">03. Proposed Solution</a></li>
               </ul>
             </div>
             <div class="doc-sidebar-group">
@@ -102,28 +105,43 @@
             <span>/</span>
             <a href="../../documentation/index.html">Documentation</a>
             <span>/</span>
-            <span>System Architecture & Interface Contract</span>
+            <span>Proposed Solution &amp; System Architecture</span>
           </div>
     <article class="doc-article">
             <div style="margin-bottom: 2rem;">
               <span class="badge badge-blue" style="margin-bottom: 0.5rem;">1. Foundations</span>
-              <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem;">System Architecture & Interface Contract</h1>
-              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">3-stage offline pipeline, data structures, and local REST API interface.</p>
+              <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem;">Proposed Solution &amp; System Architecture</h1>
+              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">The reasoning behind the 3-stage decomposition, its structure, and the local REST API interface.</p>
             </div>
             <div class="doc-toc-card" data-doc-toc></div>
     
       <section class="doc-section">
-        <h2 id="pipeline-overview">1. Decoupled 3-Stage Pipeline</h2>
+        <h2 id="approach-rationale">1. Proposed Approach</h2>
+        <p>Three architectural decisions define DepthWizard, each made to address a specific failure mode identified in <a href="problem.html">Problem Definition &amp; Background</a> rather than as a default choice:</p>
+        <p><strong>Adapt a foundation model instead of training from scratch.</strong> Monocular depth estimation trained end-to-end on a remote-sensing-scale dataset alone would need an unrealistic volume of labeled height data to reach usable accuracy. Depth Anything V2 already encodes strong general-purpose depth priors from large-scale pretraining; the research question this project answers is narrower and more tractable &mdash; how much of that prior transfers to nadir satellite geometry, and what fine-tuning recovers the rest. This is a deliberate trade: faster to a working result, at the cost of inheriting whatever biases the backbone's original (largely ground-level) training data carries.</p>
+        <p><strong>Decouple calibration from extraction, rather than predicting metric height directly.</strong> A single network trained to output absolute meters would need to memorize scale from scene content alone &mdash; a genuinely ambiguous signal, since a small building close to the sensor and a large one far away can look identical. Splitting the pipeline into a relative-depth stage and a separate, explicit scale-calibration stage lets each be validated independently, and lets the calibration stage use information the depth network never sees directly, such as a coarse external elevation reference.</p>
+        <p><strong>Calibrate per land-cover class, not with one global correction.</strong> A single affine fit between predicted and reference height assumes the relative-to-absolute relationship is uniform across a scene. It is not: buildings, trees, and roads have systematically different relative-height distributions in the training data (see <a href="land-cover-calibration.html">Per-Class Calibration</a>), and <a href="../../pages/references.html#ref-6">Srivastava et al. (2017)</a> show semantic context measurably improves height accuracy for exactly this reason. Fitting the correction separately per class is a direct application of that finding.</p>
+        <p>The result is the three-stage decomposition below &mdash; not chosen for engineering convenience alone, but because each stage corresponds to a distinct, independently-checkable source of error.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="pipeline-overview">2. Decoupled 3-Stage Pipeline</h2>
         <p>DepthWizard separates computational workloads into three discrete execution stages:</p>
         <ol>
           <li><strong>Stage 1 (Elevation Extraction):</strong> Ingests optical images, performs GSD normalization, and runs Depth Anything V2 inference to output a relative depth map.</li>
           <li><strong>Stage 2 (Scale Calibration):</strong> Fits per-land-cover affine parameters against SRTM 30m reference DEMs, generating a 16-bit metric DSM.</li>
-          <li><strong>Stage 3 (Visualization Layer):</strong> Packages heightmap, confidence texture, and RGB imagery into a Three.js textured PlaneGeometry mesh for real-time navigation.</li>
+          <li><strong>Stage 3 (Visualization Layer):</strong> Packages heightmap, confidence texture, and RGB imagery into a Three.js textured mesh for real-time navigation.</li>
         </ol>
+        <p>Each stage is described in full in its own section: <a href="methodology.html">Depth Backbone</a>, <a href="geospatial-analysis.html">SRTM Anchoring</a>, <a href="land-cover-calibration.html">Per-Class Calibration</a>, <a href="uncertainty-estimation.html">Uncertainty Mapping</a>, and <a href="terrain-reconstruction.html">3D Terrain Flythrough</a>.</p>
       </section>
 
       <section class="doc-section">
-        <h2 id="api-contract">2. Local REST API Contract (FastAPI)</h2>
+        <h2 id="deployment-rationale">3. Why a Local, Standalone Tool</h2>
+        <p>DepthWizard is built to run entirely on local compute rather than as a hosted inference service. This was a scoping decision, not a limitation discovered later: GPU inference at any public scale has a real, ongoing cost that this project has no budget for, and the intended user &mdash; a scientist or geo-planner inspecting a specific site &mdash; is well served by a tool they run themselves. A browser-based viewer (rather than a native desktop application) was kept for the visualization layer specifically because WebGL requires no installation step beyond the local backend already being up.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="api-contract">4. Local REST API Contract (FastAPI)</h2>
         <p>The backend serves inference results locally over <code>localhost:8000</code> via three fixed endpoints:</p>
         <div class="card" style="margin-bottom: 1rem;">
           <code>POST /upload</code> &bull; Multipart form (<code>file</code>)<br>

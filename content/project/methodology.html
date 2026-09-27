@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard Documentation — Single-View Height Estimation & 3D Terrain Reconstruction.">
   <title>DepthWizard Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
@@ -60,8 +63,8 @@
               <div class="doc-sidebar-title">1. Foundations</div>
               <ul class="doc-sidebar-list">
                 <li><a href="overview.html" class="doc-sidebar-link ">01. Project Overview</a></li>
-                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem Understanding</a></li>
-                <li><a href="architecture.html" class="doc-sidebar-link ">03. System Architecture</a></li>
+                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem &amp; Background</a></li>
+                <li><a href="architecture.html" class="doc-sidebar-link ">03. Proposed Solution</a></li>
               </ul>
             </div>
             <div class="doc-sidebar-group">
@@ -108,23 +111,112 @@
             <div style="margin-bottom: 2rem;">
               <span class="badge badge-blue" style="margin-bottom: 0.5rem;">2. Methods & Algorithms</span>
               <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem;">Depth Backbone Adaptation & GAMUS Fine-Tuning</h1>
-              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">Adapting Vision Transformers for nadir remote sensing via scale-invariant and multi-scale gradient losses.</p>
+              <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">Backbone adaptation, loss formulation, the full v1<p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">Adapting Vision Transformers for nadir remote sensing via scale-invariant and multi-scale gradient losses.</p>ndash;v5 iteration history, and per-class scale calibration <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">Adapting Vision Transformers for nadir remote sensing via scale-invariant and multi-scale gradient losses.</p>mdash; with the math.</p>
             </div>
             <div class="doc-toc-card" data-doc-toc></div>
     
       <section class="doc-section">
-        <h2 id="vit-backbone">1. Depth Anything V2 Backbone</h2>
-        <p>Depth Anything V2 employs a Vision Transformer (ViT) encoder coupled with a Dense Prediction Transformer (DPT) multi-resolution decoder. To retain the robust semantic feature extractors of the foundational model while adapting to satellite geometry, the early transformer blocks are frozen, optimizing only the final transformer stages and the DPT decoder heads.</p>
+        <h2 id="vit-backbone">1. Depth Anything V2 Backbone &amp; Freezing Strategy</h2>
+        <p>Depth Anything V2 (<a href="../../pages/references.html#ref-3">Yang et al., 2024</a>) uses a DINOv2 Vision Transformer encoder feeding a DPT (<a href="../../pages/references.html#ref-2">Ranftl et al., 2021</a>) multi-resolution decoder. We use the Small variant, initialized from its pretrained weights and fine-tuned rather than trained from scratch, for the transfer-learning reasoning laid out in <a href="architecture.html">Proposed Solution</a>.</p>
+        <p>Only the last <code>N</code> backbone blocks and the DPT decoder head/neck are unfrozen during fine-tuning &mdash; the earlier blocks, which encode general-purpose low-level visual features, are kept frozen. <code>N</code> is not fixed a priori: it moved from 6 (v3) to 12 (v4, current) across the iteration history below, since more unfrozen capacity gave the model more room to adapt to nadir geometry without yet showing overfitting on this dataset size.</p>
       </section>
 
       <section class="doc-section">
-        <h2 id="loss-functions">2. Composite Loss Formulation</h2>
-        <p>The backbone is fine-tuned using a multi-term objective:</p>
-        <ul>
-          <li><strong>Scale-Invariant Logarithmic Loss (L_si):</strong> Evaluates relative depth deviations irrespective of scene-wide scalar multipliers.</li>
-          <li><strong>Multi-Scale Gradient Loss (L_grad):</strong> Penalizes blurred edges at 1/2, 1/4, and 1/8 spatial scales, forcing sharp delineation along building facades.</li>
-          <li><strong>Class-Weighted Penalty:</strong> Weights structural classes (buildings and infrastructure) more heavily than background bare earth.</li>
-        </ul>
+        <h2 id="gsd-normalization">2. Ground-Sample-Distance (GSD) Normalization</h2>
+        <p>GAMUS tiles are neighborhood-scale, at an implied resolution of roughly 0.33&nbsp;m/pixel (a comparison-table figure from <a href="../../pages/references.html#ref-8">Xiong et al., 2023</a>'s follow-on literature, not stated directly in the GAMUS paper itself &mdash; treated as a well-sourced estimate, not an authoritative constant). Feeding the model a wide, district-scale image at a much coarser real-world resolution per pixel causes it to fall back on a natural-image "distant vista" prior and produce structurally meaningless output &mdash; this was confirmed empirically on real Sentinel-2 imagery before the fix, not assumed. Every input is therefore center-cropped so that, once resized to the model's <code>512&times;512</code> input, each pixel represents approximately the training resolution:</p>
+        <div style="background: var(--color-surface-soft); padding: 1rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; margin: 1rem 0;">
+          crop_side_px = target_gsd_m &times; model_input_size / source_gsd_m
+        </div>
+        <p>For GeoTIFF input, <code>source_gsd_m</code> comes from the file's own geotransform. For PNG/JPG with no embedded metadata, the pipeline explicitly assumes the image already roughly matches training scale rather than guessing a value and presenting it as measured &mdash; a documented limitation, not a silent approximation. When the computed crop is smaller than the model's input size (i.e. the source is being upscaled), a mild unsharp mask is applied afterward to recover perceived edge crispness &mdash; this does not invent detail that was not in the source, it only compensates for resize blur.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="loss-functions">3. Composite Loss Formulation</h2>
+        <p>The backbone is fine-tuned against a three-term objective, applied per-batch over predicted vs. ground-truth GAMUS height tiles:</p>
+
+        <h3 style="margin-top:1.5rem;">3.1 Scale-Invariant Logarithmic Loss</h3>
+        <p>The core pointwise regression term. Working in log-space and subtracting a term proportional to the squared mean log-difference makes the loss invariant to a global multiplicative scale offset between prediction and target &mdash; appropriate here because Stage 1's output is relative height by design; absolute scale is Stage 2's responsibility, not this model's.</p>
+        <div style="background: var(--color-surface-soft); padding: 1rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; margin: 1rem 0; overflow-x:auto;">
+          d = log(pred) &minus; log(target)<br>
+          L_si = mean(d&sup2;) &minus; &lambda; &middot; (&sum;d)&sup2; / n&sup2;&nbsp;&nbsp;&nbsp;(&lambda; = 0.5)
+        </div>
+
+        <h3 style="margin-top:1.5rem;">3.2 Multi-Scale Gradient Loss</h3>
+        <p>Penalizes mismatches in the log-space spatial gradient (horizontal and vertical finite differences) between prediction and target, computed at the native resolution and at three further average-pooled downsamplings (4 scales total). This is what specifically sharpens edges and boundaries &mdash; the scale-invariant term alone optimizes pointwise accuracy and can still be satisfied by a blurry prediction.</p>
+        <div style="background: var(--color-surface-soft); padding: 1rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; margin: 1rem 0; overflow-x:auto;">
+          L_grad = (1/4) &sum;<sub>s=0..3</sub> [ mean(|&part;<sub>x</sub>p &minus; &part;<sub>x</sub>t|) + mean(|&part;<sub>y</sub>p &minus; &part;<sub>y</sub>t|) ]<sub>scale s</sub>
+        </div>
+
+        <h3 style="margin-top:1.5rem;">3.3 Hard-Class Penalty</h3>
+        <p>An additional weighted L1 term restricted to building and tree pixels &mdash; the two tall, long-tail-distributed classes that are heavily outnumbered by trivially-easy near-zero-height ground/road/low-vegetation pixels. Without this term, the loss is dominated by the easy majority and building/tree accuracy stalls; this was a confirmed, diagnosed failure mode in an early iteration (see history below), not a precaution taken speculatively.</p>
+        <div style="background: var(--color-surface-soft); padding: 1rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; margin: 1rem 0; overflow-x:auto;">
+          L_hard = &sum;( |log(pred) &minus; log(target)| &middot; mask_{building&cup;tree} &middot; w ) / (&sum;mask &middot; w)&nbsp;&nbsp;&nbsp;(w = 3.0)
+        </div>
+
+        <h3 style="margin-top:1.5rem;">3.4 Combined Objective</h3>
+        <div style="background: var(--color-surface-soft); padding: 1rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; margin: 1rem 0; overflow-x:auto;">
+          L = L_si + 0.5 &middot; L_grad + 1.0 &middot; L_hard
+        </div>
+        <p>Optimized with AdamW, learning rate <code>1e-4</code>, batch size 4, up to 30 epochs with early stopping (patience 5 epochs without validation-loss improvement).</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="version-history">4. Fine-Tuning Iteration History</h2>
+        <p>Five documented iterations, kept here in full rather than presenting only the final result &mdash; including the one that failed, because the reason it failed is itself a methodological finding:</p>
+        <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.92rem;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border-subtle); text-align:left;">
+              <th style="padding:0.5rem;">Run</th>
+              <th style="padding:0.5rem;">Unfrozen blocks</th>
+              <th style="padding:0.5rem;">Change</th>
+              <th style="padding:0.5rem;">Outcome</th>
+            </tr>
+          </thead>
+          <tbody style="font-family: var(--font-serif);">
+            <tr style="border-bottom:1px solid var(--border-subtle);">
+              <td style="padding:0.5rem;">v1</td><td style="padding:0.5rem;">2</td>
+              <td style="padding:0.5rem;">Scale-invariant loss only</td>
+              <td style="padding:0.5rem;">Buildings/trees came out as blurry blobs</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle);">
+              <td style="padding:0.5rem;">v2</td><td style="padding:0.5rem;">6</td>
+              <td style="padding:0.5rem;">Added gradient + class-weighted loss</td>
+              <td style="padding:0.5rem;"><strong>Bug:</strong> weighted the wrong class ID (road, not tree) &mdash; apparent improvement was illusory</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle);">
+              <td style="padding:0.5rem;">v3</td><td style="padding:0.5rem;">6</td>
+              <td style="padding:0.5rem;">Corrected class IDs; weight building &amp; tree together</td>
+              <td style="padding:0.5rem;">Confirmed real: overall MAE 6.996m&rarr;4.223m (&minus;40%) vs. zero-shot</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border-subtle);">
+              <td style="padding:0.5rem;"><strong>v4 (current)</strong></td><td style="padding:0.5rem;">12</td>
+              <td style="padding:0.5rem;">Same 3-term loss, wider unfreeze</td>
+              <td style="padding:0.5rem;">Production checkpoint. Full per-class table pending re-report (see note below)</td>
+            </tr>
+            <tr>
+              <td style="padding:0.5rem;">v5</td><td style="padding:0.5rem;">12</td>
+              <td style="padding:0.5rem;">Added a 4th "structure loss" term (roof flatness)</td>
+              <td style="padding:0.5rem;"><strong>Abandoned:</strong> regressed MAE across every land-cover class</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>v5's failure is treated as a real result, not discarded: it shows the depth backbone is the wrong place to enforce roof/building <em>shape</em>. That concern was resolved instead in Stage&nbsp;3 post-processing (land-cover-guided plane fitting), which fixes shape without touching the depth model's numeric accuracy &mdash; see <a href="terrain-reconstruction.html">3D Terrain Flythrough</a>.</p>
+        <p style="background:var(--color-surface-soft); padding:0.9rem 1.1rem; border-radius:6px; border-left:3px solid var(--accent-blue);"><strong>Status:</strong> v4 is the current production checkpoint (confirmed via code inspection of the shipped pipeline). The v3 numbers above are the last independently-verified per-class MAE table we have on record. Fine-tuning is ongoing; v4's own per-class table will be added here once a run is reported and confirmed, rather than estimated from v3's trend.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="stage2-calibration">5. Scale Calibration (Stage 2)</h2>
+        <p>Stage 1's output is a <em>relative</em> height map with no absolute unit. Recovering an absolute DSM requires anchoring it to a real elevation reference &mdash; here, SRTM 30&nbsp;m (<a href="../../pages/references.html#ref-7">Farr et al., 2007</a>). The baseline approach is a single global affine fit between the two, by ordinary least squares:</p>
+        <div style="background: var(--color-surface-soft); padding: 1rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; margin: 1rem 0;">
+          srtm &asymp; a &middot; relative_height + b&nbsp;&nbsp;&nbsp;(least-squares fit over all valid pixels)
+        </div>
+        <p><strong>Our contribution:</strong> instead of one global <code>(a, b)</code> for an entire scene, we fit a separate <code>(a, b)</code> per land-cover class (ground / low-vegetation / building / water / road / tree), using the same semantic masks the depth backbone was trained alongside. This follows directly from <a href="../../pages/references.html#ref-6">Srivastava et al. (2017)</a>'s finding that semantic context improves height accuracy, and from our own Stage&nbsp;1 evaluation showing building and tree classes have systematically different relative-height error characteristics than flat ground/road. A class with fewer than 30 valid pixels in a given tile falls back to the global fit rather than producing an unstable per-class estimate from too little data. In a synthetic multi-bias test, per-class calibration reduced error by roughly 91% versus the global fit.</p>
+        <p>Because the backbone was trained on nDSM-style relative height (height above <em>local</em> ground, not global elevation), the final absolute DSM adds back a local ground baseline from SRTM itself: <code>absolute_DSM &asymp; calibrated_relative_height + local_ground_elevation</code>.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="uncertainty-summary">6. Uncertainty Estimation</h2>
+        <p>Covered in full, including the rejected Monte Carlo Dropout attempt and why it failed, in <a href="uncertainty-estimation.html">Uncertainty Mapping</a>. In summary: 8 fixed test-time-augmentation passes (flips + brightness/gamma perturbations) rather than stochastic internal noise, since the backbone's dropout is 0 by default and produces no usable signal.</p>
       </section>
 </article>        </div>
       </div>

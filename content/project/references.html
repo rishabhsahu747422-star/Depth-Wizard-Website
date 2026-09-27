@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard Documentation — Single-View Height Estimation & 3D Terrain Reconstruction.">
   <title>DepthWizard Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
@@ -60,8 +63,8 @@
               <div class="doc-sidebar-title">1. Foundations</div>
               <ul class="doc-sidebar-list">
                 <li><a href="overview.html" class="doc-sidebar-link ">01. Project Overview</a></li>
-                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem Understanding</a></li>
-                <li><a href="architecture.html" class="doc-sidebar-link ">03. System Architecture</a></li>
+                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem &amp; Background</a></li>
+                <li><a href="architecture.html" class="doc-sidebar-link ">03. Proposed Solution</a></li>
               </ul>
             </div>
             <div class="doc-sidebar-group">
@@ -114,13 +117,33 @@
     
       <section class="doc-section">
         <h2 id="bibliography">1. Peer-Reviewed Citations</h2>
+        <p>Every entry below has been individually verified against its original publication record. Papers are grouped by the pipeline stage they were used to inform, matching the discussion in <a href="problem.html">Problem Understanding</a> and <a href="methodology.html">Depth Backbone</a>.</p>
+
+        <h3 id="ref-elevation">Elevation Extraction &amp; Depth Backbone</h3>
         <ol>
-          <li>Yang, L., et al. (2024). <em>Depth Anything V2: A More Capable Foundation Model for Monocular Depth Estimation</em>. arXiv:2406.09414.</li>
-          <li>Earthflow Research. (2023). <em>GAMUS: A Multi-Source Urban Remote Sensing Dataset</em>. arXiv:2305.14914.</li>
-          <li>Mou, L., &amp; Zhu, X. X. (2018). <em>IM2HEIGHT: Height Estimation from Single Monocular Aerial Images</em>. IEEE TGRS, 56(11).</li>
-          <li>Farr, T. G., et al. (2007). <em>The Shuttle Radar Topography Mission (SRTM)</em>. Reviews of Geophysics, 45(2).</li>
-          <li>Ranftl, R., et al. (2021). <em>Vision Transformers for Dense Prediction</em>. IEEE ICCV.</li>
+          <li id="ref-1">Fu, H., Gong, M., Wang, C., Batmanghelich, K., &amp; Tao, D. (2018). <em>Deep Ordinal Regression Network for Monocular Depth Estimation</em>. IEEE Conference on Computer Vision and Pattern Recognition (CVPR), pp. 2002&ndash;2011. <a href="https://ieeexplore.ieee.org/document/9190011" target="_blank" rel="noopener">ieeexplore.ieee.org/document/9190011</a></li>
+          <li id="ref-2">Ranftl, R., Bochkovskiy, A., &amp; Koltun, V. (2021). <em>Vision Transformers for Dense Prediction</em>. IEEE/CVF International Conference on Computer Vision (ICCV), pp. 12179&ndash;12188.</li>
+          <li id="ref-3">Yang, L., Kang, B., Huang, Z., Zhao, Z., Xu, X., Feng, J., &amp; Zhao, H. (2024). <em>Depth Anything V2</em>. arXiv:2406.09414. Accepted, NeurIPS 2024.</li>
+          <li id="ref-4">Mou, L., &amp; Zhu, X. X. (2018). <em>IM2HEIGHT: Height Estimation from Single Monocular Imagery via Fully Residual Convolutional&ndash;Deconvolutional Network</em>. arXiv:1802.10249.</li>
         </ol>
+
+        <h3 id="ref-precedent">Direct Task Precedent (Single-Image &rarr; DSM)</h3>
+        <ol start="5">
+          <li id="ref-5">Ghamisi, P., &amp; Yokoya, N. (2018). <em>IMG2DSM: Height Simulation from Single Imagery Using Conditional Generative Adversarial Nets</em>. IEEE Geoscience and Remote Sensing Letters, vol. 15, no. 5, pp. 794&ndash;798. <a href="https://ieeexplore.ieee.org/document/8306501" target="_blank" rel="noopener">ieeexplore.ieee.org/document/8306501</a></li>
+        </ol>
+
+        <h3 id="ref-calibration">Scale Calibration &amp; Semantic Priors</h3>
+        <ol start="6">
+          <li id="ref-6">Srivastava, S., Volpi, M., &amp; Tuia, D. (2017). <em>Joint Height Estimation and Semantic Labeling of Monocular Aerial Images with CNNs</em>. IEEE International Geoscience and Remote Sensing Symposium (IGARSS), pp. 5173&ndash;5176. <a href="https://ieeexplore.ieee.org/document/8128167" target="_blank" rel="noopener">ieeexplore.ieee.org/document/8128167</a></li>
+          <li id="ref-7">Farr, T. G., Rosen, P. A., Caro, E., et al. (2007). <em>The Shuttle Radar Topography Mission</em>. Reviews of Geophysics, vol. 45, no. 2, RG2004.</li>
+        </ol>
+
+        <h3 id="ref-dataset">Dataset</h3>
+        <ol start="8">
+          <li id="ref-8">Xiong, Z., Chen, S., Wang, Y., Mou, L., &amp; Zhu, X. X. (2023). <em>GAMUS: A Geometry-Aware Multi-modal Semantic Segmentation Benchmark for Remote Sensing Data</em>. arXiv:2305.14914.</li>
+        </ol>
+
+        <p style="margin-top:1.5rem; color: var(--text-muted); font-size: 0.95rem;">This list will grow as the literature review deepens through later fine-tuning cycles &mdash; entries are added only once independently verified, never carried over from a source we have not read.</p>
       </section>
 </article>        </div>
       </div>

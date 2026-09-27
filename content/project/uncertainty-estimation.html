@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard Documentation — Single-View Height Estimation & 3D Terrain Reconstruction.">
   <title>DepthWizard Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
@@ -60,8 +63,8 @@
               <div class="doc-sidebar-title">1. Foundations</div>
               <ul class="doc-sidebar-list">
                 <li><a href="overview.html" class="doc-sidebar-link ">01. Project Overview</a></li>
-                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem Understanding</a></li>
-                <li><a href="architecture.html" class="doc-sidebar-link ">03. System Architecture</a></li>
+                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem &amp; Background</a></li>
+                <li><a href="architecture.html" class="doc-sidebar-link ">03. Proposed Solution</a></li>
               </ul>
             </div>
             <div class="doc-sidebar-group">
@@ -102,12 +105,12 @@
             <span>/</span>
             <a href="../../documentation/index.html">Documentation</a>
             <span>/</span>
-            <span>Innovation 2: Monte Carlo Dropout & Uncertainty Mapping</span>
+            <span>Innovation 2: Test-Time Augmentation & Uncertainty Mapping</span>
           </div>
     <article class="doc-article">
             <div style="margin-bottom: 2rem;">
               <span class="badge badge-blue" style="margin-bottom: 0.5rem;">2. Methods & Algorithms</span>
-              <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem;">Innovation 2: Monte Carlo Dropout & Uncertainty Mapping</h1>
+              <h1 style="font-size: 2.3rem; margin-bottom: 0.5rem;">Innovation 2: Test-Time Augmentation & Uncertainty Mapping</h1>
               <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.6;">Quantifying epistemic confidence to communicate height estimation reliability for disaster decision-making.</p>
             </div>
             <div class="doc-toc-card" data-doc-toc></div>
@@ -118,12 +121,17 @@
       </section>
 
       <section class="doc-section">
-        <h2 id="mc-dropout-math">2. Test-Time Monte Carlo Sampling</h2>
-        <p>By keeping dropout active during inference across <code>N=8</code> passes, DepthWizard computes pixel-level variance:</p>
+        <h2 id="mc-dropout-rejected">2. Why Monte Carlo Dropout Was Rejected</h2>
+        <p>The initial design for this module followed the standard Monte Carlo (MC) Dropout formulation: keep dropout layers active at inference and treat the variance across repeated stochastic passes as an epistemic uncertainty signal. Testing this against the fine-tuned backbone on a real GAMUS tile showed it does not work for this model. The backbone's <code>attention_probs_dropout_prob</code>, <code>hidden_dropout_prob</code>, and <code>drop_path_rate</code> are all 0 by default, so repeated stochastic passes are numerically near-identical (variance below <code>1e-8</code>) — the resulting "confidence map" collapses to a flat, meaningless constant everywhere. Dynamically forcing dropout on at inference was considered but rejected: it would require perturbing a component the model was never fine-tuned with dropout active in, making the resulting variance unrepresentative of genuine prediction ambiguity rather than an artifact of the injected noise.</p>
+      </section>
+
+      <section class="doc-section">
+        <h2 id="tta-math">3. Test-Time Augmentation (TTA) Sampling</h2>
+        <p>The module was reworked around test-time augmentation instead: the same input tile is passed through the backbone under <code>N=8</code> fixed, deterministic perturbations — identity, horizontal flip, vertical flip, both flips combined, and four brightness/gamma shifts — rather than random internal noise. Each output is un-flipped back to the original orientation before aggregation, so all 8 predictions are pixel-aligned:</p>
         <div style="background: var(--color-surface-soft); padding: 1rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; margin: 1rem 0;">
           &sigma;&sup2;(x, y) = (1 / N) &sum;_{i=1}^N [ h_i(x, y) - &mu;(x, y) ]&sup2;
         </div>
-        <p>The resulting variance map is exported as an 8-bit grayscale texture. Low-variance areas (uniform ground, broad rooftops) indicate high confidence, while high-variance boundaries flag ambiguous terrain features.</p>
+        <p>Because the perturbations are external (input-space) rather than internal (weight-space), the variance reflects genuine sensitivity of the depth prediction to viewpoint- and illumination-like changes, not an artifact of a dropout mechanism the model was never trained to tolerate. The resulting variance map is exported as a normalized confidence texture. On a real held-out GAMUS test tile, this produced a variance range of 0.0004&ndash;81.3 (mean 6.2) — a genuinely structured signal, not a flat fallback — with confidence visibly lowest at building and tree-canopy edges, exactly where height discontinuities make the prediction hardest.</p>
       </section>
 </article>        </div>
       </div>

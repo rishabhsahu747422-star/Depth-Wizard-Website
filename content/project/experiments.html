@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard Documentation — Single-View Height Estimation & 3D Terrain Reconstruction.">
   <title>DepthWizard Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
@@ -60,8 +63,8 @@
               <div class="doc-sidebar-title">1. Foundations</div>
               <ul class="doc-sidebar-list">
                 <li><a href="overview.html" class="doc-sidebar-link ">01. Project Overview</a></li>
-                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem Understanding</a></li>
-                <li><a href="architecture.html" class="doc-sidebar-link ">03. System Architecture</a></li>
+                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem &amp; Background</a></li>
+                <li><a href="architecture.html" class="doc-sidebar-link ">03. Proposed Solution</a></li>
               </ul>
             </div>
             <div class="doc-sidebar-group">
@@ -113,13 +116,15 @@
             <div class="doc-toc-card" data-doc-toc></div>
     
       <section class="doc-section">
-        <h2 id="training-regime">1. Training Setup &amp; Hyperparameters</h2>
-        <p>Models were trained using PyTorch with mixed-precision (<code>torch.cuda.amp</code>) on standard GPU hardware. An AdamW optimizer with initial learning rate 1e-4 and cosine decay was applied across 40 epochs.</p>
+        <h2 id="training-regime">1. Training Setup &amp; Data Sampling</h2>
+        <p>Fine-tuning runs in Google Colab, on plain PyTorch with AdamW (lr <code>1e-4</code>, no learning-rate schedule), batch size 4, up to 30 epochs with early stopping after 5 epochs without validation-loss improvement. Each new run resumes from the current production checkpoint by default rather than training from scratch, so it inherits prior validated improvement instead of discarding it.</p>
+        <p>GAMUS tiles are not sampled uniformly. Building and tree pixels are underrepresented relative to ground/road/low-vegetation in a random sample, which is exactly the class imbalance the hard-class loss term exists to counter (see <a href="methodology.html#loss-functions">Composite Loss Formulation</a>) &mdash; but an imbalanced <em>training set</em> compounds the problem further upstream. The sampling procedure scans a candidate pool of 500 tiles, ranks them by combined building+tree pixel fraction, and guarantees at least 150 of the final 350 training tiles are building/tree-heavy, with the remainder filled from the general pool. An 80/20 train/validation split is drawn from this final 350-tile set.</p>
       </section>
 
       <section class="doc-section">
-        <h2 id="ablation-results">2. Ablation Analysis</h2>
-        <p>Comparative experiments demonstrated that freezing early ViT encoder layers while fine-tuning the DPT decoder produced optimal trade-offs between training speed and edge sharpness. Introducing multi-scale gradient loss reduced facade blurring by 28% compared to scale-invariant loss alone.</p>
+        <h2 id="evaluation-protocol">2. Evaluation Protocol</h2>
+        <p>Because the backbone is trained with a scale-invariant loss, its raw output is not directly comparable to ground-truth meters &mdash; each prediction must first be aligned to the reference via a per-image scale correction before computing error. This alignment is done in linear space (median-ratio of prediction to target), not log space: an earlier log-space alignment attempt was distorted by the roughly 34% of pixels sitting near 0m height (ground/road), so linear alignment is the method used for all reported numbers.</p>
+        <p>Per-class Mean Absolute Error (MAE) is computed on a fixed 30-tile evaluation sample per run &mdash; not the full validation set &mdash; for one consistent, unweighted per-class table: overall, plus each of the six GAMUS classes independently. Every reported run is compared against both a zero-shot baseline (the pretrained backbone, no fine-tuning) and, where applicable, the checkpoint it resumed from &mdash; a run that beats zero-shot but loses to its own resumed-from baseline is treated as a regression, not progress (this is exactly how v5's structure-loss experiment was caught and discarded &mdash; see <a href="methodology.html#version-history">Fine-Tuning Iteration History</a>).</p>
       </section>
 </article>        </div>
       </div>

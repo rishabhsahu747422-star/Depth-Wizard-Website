@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="DepthWizard Documentation — Single-View Height Estimation & 3D Terrain Reconstruction.">
   <title>DepthWizard Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/style.css">
 </head>
 <body>
@@ -60,8 +63,8 @@
               <div class="doc-sidebar-title">1. Foundations</div>
               <ul class="doc-sidebar-list">
                 <li><a href="overview.html" class="doc-sidebar-link ">01. Project Overview</a></li>
-                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem Understanding</a></li>
-                <li><a href="architecture.html" class="doc-sidebar-link ">03. System Architecture</a></li>
+                <li><a href="problem.html" class="doc-sidebar-link ">02. Problem &amp; Background</a></li>
+                <li><a href="architecture.html" class="doc-sidebar-link ">03. Proposed Solution</a></li>
               </ul>
             </div>
             <div class="doc-sidebar-group">
@@ -113,8 +116,8 @@
             <div class="doc-toc-card" data-doc-toc></div>
     
       <section class="doc-section">
-        <h2 id="gamus-spec">1. GAMUS Dataset (Earthflow)</h2>
-        <p>The primary foundation for monocular depth fine-tuning. Comprises 11,507 paired tiles (512x512) across 5 US metropolitan areas, featuring high-resolution aerial RGB imagery, normalized DSM ground truth from airborne LiDAR, and 6-class land-cover semantic masks.</p>
+        <h2 id="gamus-spec">1. GAMUS Dataset</h2>
+        <p>The primary dataset for depth-backbone fine-tuning: <a href="../../pages/references.html#ref-8">Xiong, Chen, Wang, Mou &amp; Zhu (2023)</a>, hosted on Hugging Face under the <code>earthflow/GAMUS</code> namespace (a hosting repository, not the paper's authoring organization). 11,507 paired 512&times;512 tiles across 5 US metropolitan areas, with RGB imagery, normalized-DSM ground truth, and a 7-class land-cover mask (6 labeled classes &mdash; ground, low-vegetation, building, water, road, tree &mdash; plus unlabeled). Streamed on demand via the HF <code>datasets</code> library rather than downloaded in full, since the project has no local storage budget for the whole set.</p>
       </section>
 
       <section class="doc-section">
@@ -124,7 +127,7 @@
 
       <section class="doc-section">
         <h2 id="sentinel-spec">3. Copernicus Sentinel-2 MSI</h2>
-        <p>10m multispectral optical imagery used to evaluate real-world transfer over complex Indian geographical landscapes, ensuring stable model performance outside the training domain.</p>
+        <p>10m-resolution multispectral optical imagery (via Wikimedia Commons, free/no-cost access), used for a qualitative generalization check over New Delhi, Kolkata, and the Gangotri Glacier region &mdash; deliberately including hilly/mountainous terrain, which GAMUS's five source cities do not contain at all. No LiDAR ground truth exists for these scenes, so this is a plausibility check on structural output, not a validated accuracy claim.</p>
       </section>
 </article>        </div>
       </div>
