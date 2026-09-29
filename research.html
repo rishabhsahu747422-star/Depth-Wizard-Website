@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Background, related work, research gaps and references for DepthWizard single-view height estimation.">
+  <title>Research & Literature Review — DepthWizard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="./index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">DEPTHWIZARD</span>
+          <span class="brand-tag">RESEARCH PROJECT</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="./index.html" class="nav-link">Home</a></li>
+          <li><a href="./research.html" class="nav-link active">Research</a></li>
+          <li><a href="./methodology.html" class="nav-link">Methodology</a></li>
+          <li><a href="./results.html" class="nav-link">Results</a></li>
+          <li><a href="./conclusions.html" class="nav-link">Conclusions</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="./documentation.html" class="btn btn-nav btn-primary">
+          <span>Documentation</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="page-head">
+      <div class="container">
+        <span class="badge badge-blue">Research &amp; Literature Review</span>
+        <h1>Background and prior work</h1>
+        <p class="lead">DepthWizard sits between two research areas &mdash; monocular depth estimation and height estimation from remote-sensing imagery. This page sets out what each contributes, where they fall short for our task, and how the design responds.</p>
+        <div class="chip-nav"><a href="#background">Background</a><a href="#related">Related work</a><a href="#comparison">Comparison</a><a href="#gaps">Research gaps</a><a href="#theory">Theory</a><a href="#references">References</a></div>
+      </div>
+    </section>
+    <section class="band" id="background">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Background</span><h2>From monocular depth to remote-sensing height</h2><p class="sub">Three strands of prior work meet in this project: monocular depth estimation, height estimation from aerial imagery, and elevation reference data.</p></div>
+<div class="split "><div><div class="prose">
+<h3>Monocular depth estimation</h3>
+<p>Estimating depth from one image became practical with deep networks. Fu et al. (2018) framed it as ordinal regression, discretising the depth range and predicting an ordered class per pixel, an influential formulation for dense depth prediction. Ranftl et al. (2021) showed that a Vision Transformer encoder with a convolutional decoder (DPT) gives finer, more globally coherent dense predictions than earlier convolutional designs. Depth Anything V2 (Yang et al., 2024) builds on a DINOv2 encoder and the DPT decoder and is trained at very large scale, which is why it transfers so well to images unlike its training data. It is the backbone used here.</p>
+<h3>Height from aerial and satellite imagery</h3>
+<p>A separate line of work predicts height directly from remote-sensing imagery. Mou and Zhu (2018) introduced IM2HEIGHT, a fully residual convolutional-deconvolutional network that regresses a height map from a single aerial image. Ghamisi and Yokoya (2018) generated digital surface models from one image with a conditional GAN. Srivastava et al. (2017) trained a network to estimate height and semantic labels jointly and found that the semantic task improved the height estimate. These works establish that single-image height recovery is learnable, but they predict height inside the domain they were trained on and do not address absolute calibration or confidence.</p>
+<h3>Reference data and benchmark</h3>
+<p>The Shuttle Radar Topography Mission (Farr et al., 2007) provides near-global elevation at roughly 30&nbsp;m spacing. It is far too coarse to resolve buildings but gives a reliable regional baseline, which is exactly what a scale calibration needs. GAMUS (Xiong et al., 2023) supplies paired RGB, height and land-cover labels for fine-tuning and evaluation.</p>
+</div></div><div class="stack"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Perspective imagery (left) carries vanishing-point cues that nadir imagery (right) lacks." loading="lazy"><figcaption><b>Figure 1.</b> Perspective imagery (left) carries vanishing-point cues that nadir imagery (right) lacks.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div><strong>Why nadir imagery is different.</strong> With the camera looking straight down, depth cues such as vanishing lines and horizon compression disappear. Height must be read from cast shadows, roof edges and texture, which general-purpose depth models were not trained to do.</div></div></div></div>
+      </div>
+    </section>
+    <section class="band alt" id="related">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Related Work</span><h2>Eight works that shaped the design</h2><p class="sub">Each paper below is cited in the design of a specific stage; the full references follow at the end of this page.</p></div>
+<div class="g2"><div class="card"><h4 style="color:var(--primary-blue)">Fu et al., 2018</h4><div class="card-text"><em>Deep Ordinal Regression Network for Monocular Depth Estimation.</em> Casts depth estimation as ordinal regression over a discretised depth range, a widely cited formulation for deep monocular depth.</div><div class="card-meta"><strong>How we use it:</strong> Foundational context for treating depth as dense structured prediction. Our backbone is a DINOv2 and DPT model rather than this network.</div></div><div class="card"><h4 style="color:var(--primary-blue)">Ranftl et al., 2021</h4><div class="card-text"><em>Vision Transformers for Dense Prediction.</em> Introduces DPT: a Vision Transformer encoder with a multi-resolution convolutional decoder for dense prediction.</div><div class="card-meta"><strong>How we use it:</strong> The decoder design inside Depth Anything V2, and therefore inside our Stage 1 model.</div></div><div class="card"><h4 style="color:var(--primary-blue)">Yang et al., 2024</h4><div class="card-text"><em>Depth Anything V2.</em> A foundation monocular depth model built on a DINOv2 encoder and DPT decoder, trained at large scale.</div><div class="card-meta"><strong>How we use it:</strong> The pretrained backbone we fine-tune, in its Small variant.</div></div><div class="card"><h4 style="color:var(--primary-blue)">Mou &amp; Zhu, 2018</h4><div class="card-text"><em>IM2HEIGHT.</em> Fully residual convolutional-deconvolutional network that regresses a height map from a single monocular aerial image.</div><div class="card-meta"><strong>How we use it:</strong> A standard remote-sensing baseline. It predicts height inside its training domain; we add a calibration stage and confidence estimation.</div></div><div class="card"><h4 style="color:var(--primary-blue)">Ghamisi &amp; Yokoya, 2018</h4><div class="card-text"><em>IMG2DSM.</em> Simulates a digital surface model from a single image using a conditional generative adversarial network.</div><div class="card-meta"><strong>How we use it:</strong> The closest published precedent for the task. Our approach is discriminative, built on a foundation backbone, and calibrated to metres.</div></div><div class="card"><h4 style="color:var(--primary-blue)">Srivastava et al., 2017</h4><div class="card-text"><em>Joint Height Estimation and Semantic Labeling.</em> Trains a CNN to estimate height and semantic classes jointly, showing semantic context improves height accuracy.</div><div class="card-meta"><strong>How we use it:</strong> The precedent for using land-cover information: we use it to fit scale calibration separately per class.</div></div><div class="card"><h4 style="color:var(--primary-blue)">Farr et al., 2007</h4><div class="card-text"><em>The Shuttle Radar Topography Mission.</em> Documents the near-global elevation dataset acquired by radar interferometry from the Space Shuttle.</div><div class="card-meta"><strong>How we use it:</strong> The 30&nbsp;m reference elevation used to anchor relative height to metres.</div></div><div class="card"><h4 style="color:var(--primary-blue)">Xiong et al., 2023</h4><div class="card-text"><em>GAMUS.</em> A geometry-aware multi-modal benchmark pairing remote-sensing RGB with height and semantic labels.</div><div class="card-meta"><strong>How we use it:</strong> Our fine-tuning and evaluation data: 11,507 paired tiles with a land-cover mask.</div></div></div>
+      </div>
+    </section>
+    <section class="band" id="comparison">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Comparison</span><h2>Where DepthWizard sits</h2><p class="sub">Conventional acquisition measures elevation; learned single-image methods infer it. DepthWizard adds two things the learned methods leave out.</p></div>
+<div class="table-wrap"><table class="dtable"><thead><tr><th>Approach</th><th>Input</th><th>Output</th><th>Absolute scale</th><th>Confidence</th></tr></thead><tbody><tr><td>LiDAR, stereo, InSAR (conventional)</td><td>Dedicated acquisition; multiple views or active sensor</td><td>Measured DSM</td><td>Measured directly</td><td>From measurement quality</td></tr><tr><td>IM2HEIGHT</td><td>Single aerial image</td><td>Height map</td><td>Learned implicitly from training data</td><td>Not part of the method</td></tr><tr><td>IMG2DSM</td><td>Single image</td><td>Simulated DSM</td><td>Learned implicitly from training data</td><td>Not part of the method</td></tr><tr><td><strong>DepthWizard</strong></td><td>Single image (GeoTIFF or plain)</td><td>Relative DSM; calibrated DSM in metres when georeferenced</td><td>Explicit per-class calibration against SRTM</td><td>Per-pixel map from test-time augmentation</td></tr></tbody></table></div>
+      </div>
+    </section>
+    <section class="band alt" id="gaps">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Research Gaps</span><h2>What earlier approaches left open</h2><p class="sub">Four gaps, each mapped to a specific component of the pipeline.</p></div>
+<div class="stack"><div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div><strong>Domain gap.</strong> General-purpose depth foundation models are not validated on nadir remote-sensing imagery. Depth cues learned from ground-level photographs do not transfer directly, so the model needs adaptation to top-down geometry. We address this by fine-tuning on GAMUS and measuring the change per land-cover class against the zero-shot backbone.</div></div><div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div><strong>Uniform scale correction.</strong> Learned height methods that report metres implicitly assume one relationship between predicted and true height across the whole scene. Our evaluation shows relative-height error differs between buildings, trees and ground, and earlier semantic work points the same way. We address this with a calibration fitted independently for each land-cover class.</div></div><div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div><strong>Silent overconfidence.</strong> Single-image height estimates are normally presented with no indication of where they are unreliable. We provide a per-pixel confidence map and document why the more common Monte Carlo Dropout approach does not work for this backbone.</div></div><div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div><strong>Sensitivity to resolution.</strong> A model trained at one ground-sample distance behaves unpredictably at another, and this is rarely discussed for depth foundation models. We confirmed the failure on real Sentinel-2 imagery and address it with explicit ground-sample-distance normalisation.</div></div></div>
+      </div>
+    </section>
+    <section class="band" id="theory">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Theoretical Framework</span><h2>The ideas the method rests on</h2><p class="sub">Four short arguments; the full mathematics is archived in Documentation.</p></div>
+<details class="acc" open><summary>Why single-image depth is ill-posed</summary><div class="acc-body"><div class="prose"><p>Under perspective projection a scene point at position <code>(X, Y, Z)</code> appears at image position <code>u = f&middot;X/Z</code>, <code>v = f&middot;Y/Z</code>. Scaling the whole scene by any factor <code>s</code> gives <code>(sX, sY, sZ)</code> and lands on exactly the same pixel. The image therefore cannot distinguish a small near scene from a large far one, so absolute scale is undetermined. A learned model resolves the <em>shape</em> using priors about the world; scale needs an external measurement.</p></div></div></details><details class="acc"><summary>Scale-invariant learning</summary><div class="acc-body"><div class="prose"><p>Because absolute scale is not recoverable from the image, training the network against absolute metres would reward guesses. A scale-invariant logarithmic loss compares predictions with targets in log-space and subtracts a term proportional to the squared mean log-difference, so a global multiplicative offset costs nothing. The network is then free to learn structure, and scale is handled later. The formulation is given in <a href="documentation.html#doc-loss">Documentation</a>.</p></div></div></details><details class="acc"><summary>Semantic priors for height</summary><div class="acc-body"><div class="prose"><p>Land-cover class carries information about height: buildings and trees stand above ground, roads and water lie on it. Srivastava et al. (2017) showed that learning semantics and height together helps. We use the idea differently, at calibration time: the relationship between predicted relative height and reference elevation is fitted separately for each class, so a systematic bias affecting only trees, for example, does not distort buildings.</p></div></div></details><details class="acc"><summary>Test-time augmentation as an uncertainty estimate</summary><div class="acc-body"><div class="prose"><p>If a prediction is well determined by the image, small changes to the input &mdash; a flip, a slight brightening &mdash; should change it very little once mapped back. Where the model is unsure, such changes move the answer. The variance across a fixed set of eight perturbed passes measures that sensitivity. It captures how stable the model&rsquo;s output is, which is a useful proxy for reliability rather than a calibrated probability.</p></div></div></details>
+      </div>
+    </section>
+    <section class="band alt" id="references">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">References</span><h2>Bibliography</h2><p class="sub">Each entry was checked against its original publication record. The guided filter (9) is the edge-preserving filter used in Stages 1 and 3.</p></div>
+<div class="table-wrap"><table class="dtable"><thead><tr><th>#</th><th>Reference</th></tr></thead><tbody><tr><td>1</td><td>Fu, H., Gong, M., Wang, C., Batmanghelich, K., &amp; Tao, D. (2018). Deep Ordinal Regression Network for Monocular Depth Estimation. <em>IEEE CVPR</em>, pp. 2002&ndash;2011. <a href="https://ieeexplore.ieee.org/document/9190011" target="_blank" rel="noopener">IEEE Xplore</a></td></tr><tr><td>2</td><td>Ranftl, R., Bochkovskiy, A., &amp; Koltun, V. (2021). Vision Transformers for Dense Prediction. <em>IEEE/CVF ICCV</em>, pp. 12179&ndash;12188.</td></tr><tr><td>3</td><td>Yang, L., Kang, B., Huang, Z., Zhao, Z., Xu, X., Feng, J., &amp; Zhao, H. (2024). Depth Anything V2. <em>NeurIPS 2024</em>. arXiv:2406.09414.</td></tr><tr><td>4</td><td>Mou, L., &amp; Zhu, X. X. (2018). IM2HEIGHT: Height Estimation from Single Monocular Imagery via Fully Residual Convolutional-Deconvolutional Network. arXiv:1802.10249.</td></tr><tr><td>5</td><td>Ghamisi, P., &amp; Yokoya, N. (2018). IMG2DSM: Height Simulation from Single Imagery Using Conditional Generative Adversarial Net. <em>IEEE Geoscience and Remote Sensing Letters</em>, 15(5), 794&ndash;798. <a href="https://ieeexplore.ieee.org/document/8306501" target="_blank" rel="noopener">IEEE Xplore</a></td></tr><tr><td>6</td><td>Srivastava, S., Volpi, M., &amp; Tuia, D. (2017). Joint Height Estimation and Semantic Labeling of Monocular Aerial Images with CNNs. <em>IEEE IGARSS</em>, pp. 5173&ndash;5176. <a href="https://ieeexplore.ieee.org/document/8128167" target="_blank" rel="noopener">IEEE Xplore</a></td></tr><tr><td>7</td><td>Farr, T. G., Rosen, P. A., Caro, E., et al. (2007). The Shuttle Radar Topography Mission. <em>Reviews of Geophysics</em>, 45(2), RG2004.</td></tr><tr><td>8</td><td>Xiong, Z., Chen, S., Wang, Y., Mou, L., &amp; Zhu, X. X. (2023). GAMUS: A Geometry-Aware Multi-modal Semantic Segmentation Benchmark for Remote Sensing Data. arXiv:2305.14914.</td></tr><tr><td>9</td><td>He, K., Sun, J., &amp; Tang, X. (2010). Guided Image Filtering. <em>ECCV 2010</em>.</td></tr></tbody></table></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div class="footer-copyright">DepthWizard &mdash; single-view height estimation &amp; 3D terrain reconstruction research.</div>
+        <div class="footer-links">
+          <a href="./index.html">Home</a><a href="./research.html">Research</a><a href="./methodology.html">Methodology</a><a href="./results.html">Results</a><a href="./conclusions.html">Conclusions</a><a href="./documentation.html">Documentation</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/navigation.js"></script>
+  <script src="./js/main.js"></script>
+  <script src="./js/ui.js"></script>
+</body>
+</html>

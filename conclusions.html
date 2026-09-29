@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Key findings, impact, limitations, and future directions for DepthWizard.">
+  <title>Conclusions & Future Work — DepthWizard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="./index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">DEPTHWIZARD</span>
+          <span class="brand-tag">RESEARCH PROJECT</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="./index.html" class="nav-link">Home</a></li>
+          <li><a href="./research.html" class="nav-link">Research</a></li>
+          <li><a href="./methodology.html" class="nav-link">Methodology</a></li>
+          <li><a href="./results.html" class="nav-link">Results</a></li>
+          <li><a href="./conclusions.html" class="nav-link active">Conclusions</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="./documentation.html" class="btn btn-nav btn-primary">
+          <span>Documentation</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="page-head">
+      <div class="container">
+        <span class="badge badge-blue">Conclusions &amp; Future Work</span>
+        <h1>Key Findings and Next Steps</h1>
+        <p class="lead">What the evidence gathered so far supports, what it does not yet support, and what comes next.</p>
+        <div class="chip-nav"><a href="#findings">Findings</a><a href="#impact">Impact</a><a href="#limitations">Limitations</a><a href="#future">Future work</a></div>
+      </div>
+    </section>
+    <section class="band" id="findings">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Key Findings</span><h2>What this project demonstrates</h2></div>
+<div class="g2"><div class="card"><div class="num">01</div><h4>Foundation models transfer to nadir geometry</h4><div class="card-text">A general-purpose monocular depth model adapts to top-down remote-sensing imagery through targeted fine-tuning, without training from scratch &mdash; a 40% overall MAE reduction against zero-shot on the v3 checkpoint.</div></div><div class="card"><div class="num">02</div><h4>Per-class calibration measurably beats a global fit</h4><div class="card-text">Calibrating scale independently per land-cover class reduced error by roughly 91% against a single global affine fit in a controlled synthetic test, confirming the semantic-context finding of Srivastava et al. (2017) in this specific pipeline.</div></div><div class="card"><div class="num">03</div><h4>Test-time augmentation is a real substitute for Monte Carlo Dropout</h4><div class="card-text">Where a backbone&rsquo;s dropout configuration makes MC-Dropout numerically meaningless, input-space test-time augmentation produces a genuinely structured confidence signal instead &mdash; a finding likely relevant beyond this project.</div></div><div class="card"><div class="num">04</div><h4>GSD normalisation is required, not optional</h4><div class="card-text">Without ground-sample-distance normalisation, the model silently produces plausible-looking but structurally meaningless output on imagery at the wrong effective resolution &mdash; confirmed on real Sentinel-2 imagery.</div></div></div>
+      </div>
+    </section>
+    <section class="band alt" id="impact">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Impact &amp; Implications</span><h2>Who this is for</h2></div>
+<div class="split "><div><div class="prose">
+<p>The intended user is a scientist, disaster-response planner, or geospatial analyst who has a single optical image of a site and needs an approximate 3D terrain model without waiting on a LiDAR survey or stereo satellite tasking. The system is explicitly not intended to replace survey-grade elevation data where that is available and precision matters &mdash; it fills the gap when it is not.</p>
+</div></div><div class="stack"><div class="g2"><div class="card"><h4>Disaster response</h4><div class="card-text">A first approximate terrain model for a site immediately after a single image becomes available, before a survey can be organised.</div></div><div class="card"><h4>Environmental &amp; infrastructure planning</h4><div class="card-text">Quick terrain context for a site under study, usable alongside &mdash; not instead of &mdash; formal survey data where precision is required.</div></div></div></div></div>
+      </div>
+    </section>
+    <section class="band" id="limitations">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Limitations</span><h2>Stated plainly</h2></div>
+<div class="stack"><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div>No LiDAR ground truth exists for the real-world generalisation tests (Delhi, Kolkata, Gangotri) &mdash; those results are plausibility checks, not validated accuracy.</div></div><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div>Single-tile calibration shows near-zero affine slopes for most classes on real data &mdash; robust use of pixel-level calibration signal is demonstrated so far only in controlled synthetic testing.</div></div><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div>The depth backbone&rsquo;s raw output resolution limits how much edge-aware post-filtering can sharpen a mesh; it can realign existing signal but cannot recover detail the backbone never predicted.</div></div><div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div>No public GPU inference deployment: a local, standalone research tool by design, given no compute budget for hosted inference &mdash; a stated constraint, not an overlooked gap.</div></div></div>
+      </div>
+    </section>
+    <section class="band alt" id="future">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Future Work</span><h2>Near-term next steps</h2></div>
+<ol class="timeline-v"><li class="now"><h4>Re-report v4</h4><p>Full per-class MAE table for the current production checkpoint, not yet independently re-evaluated.</p></li><li class=""><h4>Confirm the SRTM fetch fix</h4><p>Verify the diagnosed GDAL CLI dependency fix against a fresh real-network run.</p></li><li class=""><h4>Consider a v6 fine-tuning run</h4><p>More unfrozen blocks and an edge-aware loss term, if guided-filter post-processing continues to be insufficient for mesh sharpness.</p></li><li class=""><h4>Re-verify the confidence-layer UI toggle</h4><p>Last reported non-functional in the frontend.</p></li><li class=""><h4>Broaden generalisation testing</h4><p>Add more out-of-domain regions and, where possible, a real ground-truth comparison rather than a purely qualitative check.</p></li></ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div class="footer-copyright">DepthWizard &mdash; single-view height estimation &amp; 3D terrain reconstruction research.</div>
+        <div class="footer-links">
+          <a href="./index.html">Home</a><a href="./research.html">Research</a><a href="./methodology.html">Methodology</a><a href="./results.html">Results</a><a href="./conclusions.html">Conclusions</a><a href="./documentation.html">Documentation</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/navigation.js"></script>
+  <script src="./js/main.js"></script>
+  <script src="./js/ui.js"></script>
+</body>
+</html>

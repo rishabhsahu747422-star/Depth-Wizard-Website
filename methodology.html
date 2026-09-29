@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DepthWizard's five-part pipeline: data engineering, model fine-tuning, scale calibration, uncertainty estimation, and 3D visualisation.">
+  <title>Methodology & Pipeline — DepthWizard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="./index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">DEPTHWIZARD</span>
+          <span class="brand-tag">RESEARCH PROJECT</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="./index.html" class="nav-link">Home</a></li>
+          <li><a href="./research.html" class="nav-link">Research</a></li>
+          <li><a href="./methodology.html" class="nav-link active">Methodology</a></li>
+          <li><a href="./results.html" class="nav-link">Results</a></li>
+          <li><a href="./conclusions.html" class="nav-link">Conclusions</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="./documentation.html" class="btn btn-nav btn-primary">
+          <span>Documentation</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="page-head">
+      <div class="container">
+        <span class="badge badge-blue">Methodology</span>
+        <h1>A decoupled, five-part pipeline</h1>
+        <p class="lead">Each stage below is independently testable by design, so an error can be traced to a specific cause rather than absorbed into one end-to-end network. This page is the readable version; every equation and the complete iteration history are archived in <a href="documentation.html">Documentation</a>.</p>
+        <div class="chip-nav"><a href="#data">Data</a><a href="#model">Model</a><a href="#calibration">Calibration</a><a href="#uncertainty">Uncertainty</a><a href="#visualization">Visualisation</a></div>
+      </div>
+    </section>
+<section class="band"><div class="container"><div class="diagram"><div class="mermaid">
+graph LR
+  A["Image<br/>PNG / JPG / GeoTIFF"] --> T{"Larger than<br/>one tile?"}
+  T -->|no| G["GSD normalisation"]
+  T -->|yes| TG["Tiling<br/>overlap 20%, feathered blend"]
+  TG --> G
+  G --> S1["Stage 1<br/>Elevation extraction"]
+  S1 -->|stitch tiles once| S1B["Relative height (full image)"]
+  S1B --> S2["Stage 2<br/>Scale calibration"]
+  SRTM["SRTM 30 m"] -.-> S2
+  LC["Land-cover mask"] -.-> S2
+  S2 --> S3["Stage 3<br/>Roof flattening, edge smoothing, mesh"]
+  S1 -->|8 TTA passes| CONF["Confidence map"]
+  CONF --> S3
+  S3 --> OUT["Interactive 3D terrain"]
+</div><div class="diagram-cap">The full pipeline including multi-tile handling for large images.</div></div><div style="height:1.5rem"></div><div class="steps"><div class="step"><h4>1. Data</h4><p>GAMUS tiles, GSD normalisation, tile sampling weighted toward buildings and trees.</p></div><div class="step"><h4>2. Train</h4><p>Fine-tune the depth backbone with a three-term loss; five documented iterations, v4 in production.</p></div><div class="step"><h4>3. Calibrate</h4><p>Per-land-cover-class affine fit against SRTM, resampled to prediction resolution.</p></div><div class="step"><h4>4. Estimate confidence</h4><p>Eight test-time-augmentation passes give a per-pixel variance map.</p></div><div class="step"><h4>5. Visualise</h4><p>Roof flattening, edge-aware smoothing, 16-bit heightmap, interactive 3D mesh.</p></div></div></div></section>    <section class="band" id="data">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Data Engineering</span><h2>What the model is trained and calibrated against</h2><p class="sub">Dataset composition, sampling strategy, resolution normalisation, and how images larger than one tile are handled.</p></div>
+<div class="split "><div><div class="prose">
+<p>Fine-tuning uses <strong>GAMUS</strong> (Xiong et al., 2023): 11,507 paired 512&times;512 tiles across five US metropolitan areas, each with RGB imagery, a normalised height map, and a land-cover mask across six classes plus unlabelled. Absolute calibration is anchored to <strong>SRTM 30&nbsp;m</strong> (Farr et al., 2007), streamed on demand rather than stored in full.</p>
+<p>Building and tree pixels are a minority of GAMUS. Left alone, a random sample under-represents exactly the classes that are hardest and most important to get right. Tile sampling instead ranks a pool of 500 candidate tiles by combined building and tree pixel fraction and guarantees at least 150 of the final 350 training tiles are building- or tree-heavy, with an 80/20 train&ndash;validation split drawn from that set.</p>
+<h3>Ground-sample-distance normalisation</h3>
+<p>GAMUS tiles sit at roughly 0.33&nbsp;m per pixel. An arbitrary input image at a very different effective resolution reaches the model looking like a different kind of scene &mdash; confirmed directly on real Sentinel-2 imagery, which produced structurally meaningless output before this fix. Every input is cropped so that, once resized to the model&rsquo;s 512&times;512 input, one pixel represents approximately the training resolution:</p></div><span class="math-cap">GSD normalisation</span><div class="math-block">crop_side_px&nbsp;=&nbsp;target_gsd_m &times; model_input_size / source_gsd_m</div><div class="prose"><p>For GeoTIFF input, <code>source_gsd_m</code> is read from the file&rsquo;s geotransform. For plain PNG or JPG with no coordinates, the pipeline assumes training-scale resolution rather than guessing a number and presenting it as measured.</p></div></div><div class="stack"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="A GAMUS training tile: RGB, height, and land-cover mask." loading="lazy"><figcaption><b>Figure 6.</b> A GAMUS training tile: RGB, height, and land-cover mask.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><div style="height:1.25rem"></div><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div><strong>Large images are tiled, not resized.</strong> Above a size threshold the image is split into overlapping tiles (20% overlap, feathered blend weights), run through Stage 1 individually, and stitched into one relative height map before calibration runs once on the full result &mdash; fitting calibration per tile would introduce a visible height seam at every tile boundary.</div></div></div></div>
+      </div>
+    </section>
+    <section class="band alt" id="model">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Model &amp; Training</span><h2>A fine-tuned foundation model, not a network from scratch</h2><p class="sub">What is frozen, what is trained, and how five documented fine-tuning runs led to the current checkpoint.</p></div>
+<div class="split "><div><div class="prose">
+<p>Stage 1 is <strong>Depth Anything V2</strong> (Yang et al., 2024), Small variant &mdash; a DINOv2 Vision Transformer encoder feeding a DPT (Ranftl et al., 2021) multi-resolution decoder. It is fine-tuned rather than trained from scratch: general-purpose depth priors from large-scale pretraining transfer partially to nadir geometry, and fine-tuning recovers the rest without needing an unrealistic volume of labelled height data.</p>
+<p>Only the last several backbone blocks and the DPT decoder are unfrozen; earlier blocks, which encode general low-level visual features, stay frozen. The number of unfrozen blocks moved from 6 to 12 across the iteration history &mdash; see <a href="documentation.html#doc-history">Documentation</a> for the full run-by-run record.</p>
+</div></div><div class="stack"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Backbone: DINOv2 encoder, DPT decoder, unfrozen blocks highlighted." loading="lazy"><figcaption><b>Figure 7.</b> Backbone: DINOv2 encoder, DPT decoder, unfrozen blocks highlighted.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div></div><h3 style="margin:2.25rem 0 0.75rem;font-size:1.15rem;">Composite training objective</h3><p style="color:var(--text-muted);max-width:90ch;">Three loss terms, each addressing a specific failure seen in earlier runs. Full equations are in <a href="documentation.html#doc-loss">Documentation</a>.</p><div class="g3" style="margin-top:1.25rem;"><div class="card"><h4>Scale-invariant loss</h4><div class="card-text">The pointwise term. Invariant to a global multiplicative offset, appropriate since Stage 1 output is relative height by design.</div><div class="card-meta"><strong>Fixes:</strong> nothing, on its own &mdash; it is the baseline term.</div></div><div class="card"><h4>Multi-scale gradient loss</h4><div class="card-text">Penalises mismatched edges at four scales. The scale-invariant term alone can be satisfied by a blurry prediction.</div><div class="card-meta"><strong>Fixes:</strong> the blurry-blob output seen in run v1.</div></div><div class="card"><h4>Hard-class penalty</h4><div class="card-text">A weighted term over building and tree pixels only, which are outnumbered by trivially easy near-zero ground pixels.</div><div class="card-meta"><strong>Fixes:</strong> building/tree accuracy stalling behind the easy majority.</div></div></div>
+      </div>
+    </section>
+    <section class="band" id="calibration">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Scale Calibration</span><h2>From relative height to metres, per land-cover class</h2><p class="sub">The affine correction and why it is fitted separately per class rather than once for the scene.</p></div>
+<div class="split "><div><div class="prose">
+<p>Stage 1&rsquo;s output has no absolute unit. The direct approach is one affine correction fitted between relative height and SRTM for the whole scene, by ordinary least squares. We instead fit an independent correction for each land-cover class, following the finding that semantic context improves height accuracy (Srivastava et al., 2017) and our own observation that classes have systematically different relative-height error.</p>
+<p>A class with fewer than 30 valid pixels in a tile falls back to the global fit rather than an unstable per-class estimate from too little data. The coarse SRTM grid is resampled <em>up</em> to Stage 1&rsquo;s finer prediction grid, not the reverse, so calibration works at native prediction resolution.</p>
+</div></div><div class="stack"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Per-class affine fit: predicted relative height versus SRTM reference, one line per class." loading="lazy"><figcaption><b>Figure 8.</b> Per-class affine fit: predicted relative height versus SRTM reference, one line per class.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><div style="height:1.25rem"></div><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div><strong>An honest result, not a clean one.</strong> On a real end-to-end tile, most fitted slopes came out near zero &mdash; the calibration mostly predicts each class&rsquo;s mean height rather than using Stage 1&rsquo;s pixel-level signal. The full numbers are in <a href="documentation.html#doc-calibration">Documentation</a> and in <a href="results.html">Results</a>.</div></div></div></div>
+      </div>
+    </section>
+    <section class="band alt" id="uncertainty">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Uncertainty Estimation</span><h2>Why Monte Carlo Dropout was replaced</h2><p class="sub">A documented failure and the working alternative &mdash; full derivation in Documentation.</p></div>
+<div class="split "><div><div class="prose">
+<p>The first design followed the standard approach, Monte Carlo Dropout: keep dropout active at inference and treat the variance across repeated stochastic passes as uncertainty. It failed outright for this backbone &mdash; its dropout probabilities are all zero by default, so repeated passes were numerically near-identical (variance below 1e-8) and the resulting map was a flat, meaningless constant everywhere.</p>
+<p>We replaced it with <strong>test-time augmentation</strong>: eight fixed, deterministic input perturbations (identity, horizontal flip, vertical flip, both combined, and four brightness/gamma shifts), each mapped back to the original orientation before the per-pixel variance is computed. Because the perturbations act on the input rather than the network&rsquo;s internals, the resulting variance reflects genuine prediction sensitivity.</p>
+</div></div><div class="stack"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Confidence map: lowest at building edges and tree-canopy boundaries." loading="lazy"><figcaption><b>Figure 9.</b> Confidence map: lowest at building edges and tree-canopy boundaries.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div></div>
+      </div>
+    </section>
+    <section class="band" id="visualization">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Visualisation &amp; Mesh Preparation</span><h2>From a calibrated surface to a navigable terrain</h2><p class="sub">Per-instance roof flattening, edge-aware smoothing, and the render modes available in the 3D viewer.</p></div>
+<div class="split "><div><div class="prose">
+<p>Before meshing, building footprints are flattened: for each connected blob of a planar class (buildings by default), a tilted plane <code>z&nbsp;=&nbsp;ax&nbsp;+&nbsp;by&nbsp;+&nbsp;c</code> is fitted to the blob&rsquo;s raw predicted heights by least squares and every pixel in the blob is replaced with the plane&rsquo;s value. Where a single plane fits poorly relative to the blob&rsquo;s height range &mdash; a sign of a gable or hip roof &mdash; the blob is instead split along its long axis (found by PCA) into two halves, each with its own plane. This is the fix for the shape problem that the abandoned v5 structure-loss experiment tried and failed to solve inside the network; imposing it downstream, using the land-cover mask, works. Tree canopy is deliberately excluded &mdash; it has real internal height variance a plane fit would misrepresent, better left to the confidence overlay.</p>
+<p>An edge-aware guided filter (He et al., 2010) then smooths the full surface, using the RGB image as a guide so smoothing respects real edges instead of blurring across them. Flattening happens first, smoothing second, over everything including the now-flat buildings.</p>
+<p>The result is packaged as a 16-bit heightmap &mdash; 65,536 levels rather than 256, avoiding visible terracing &mdash; alongside the confidence texture and source imagery, and rendered in a Three.js viewer with elevation, solid and imagery modes, orbit controls, and a first-person WASD flythrough.</p>
+</div></div><div class="stack"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Raw prediction versus roof-flattened, edge-smoothed output on the same tile." loading="lazy"><figcaption><b>Figure 10.</b> Raw prediction versus roof-flattened, edge-smoothed output on the same tile.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div class="footer-copyright">DepthWizard &mdash; single-view height estimation &amp; 3D terrain reconstruction research.</div>
+        <div class="footer-links">
+          <a href="./index.html">Home</a><a href="./research.html">Research</a><a href="./methodology.html">Methodology</a><a href="./results.html">Results</a><a href="./conclusions.html">Conclusions</a><a href="./documentation.html">Documentation</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { useMaxWidth: true, htmlLabels: true } });</script>
+  <script src="./js/navigation.js"></script>
+  <script src="./js/main.js"></script>
+  <script src="./js/ui.js"></script>
+</body>
+</html>

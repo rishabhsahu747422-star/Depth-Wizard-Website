@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DepthWizard evaluation metrics, quantitative results, the full ablation history, known issues, and example runs.">
+  <title>Results & Evaluation — DepthWizard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="./index.html" class="nav-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">DEPTHWIZARD</span>
+          <span class="brand-tag">RESEARCH PROJECT</span>
+        </div>
+      </a>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="./index.html" class="nav-link">Home</a></li>
+          <li><a href="./research.html" class="nav-link">Research</a></li>
+          <li><a href="./methodology.html" class="nav-link">Methodology</a></li>
+          <li><a href="./results.html" class="nav-link active">Results</a></li>
+          <li><a href="./conclusions.html" class="nav-link">Conclusions</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a href="./documentation.html" class="btn btn-nav btn-primary">
+          <span>Documentation</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </a>
+        <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="page-head">
+      <div class="container">
+        <span class="badge badge-blue">Results &amp; Evaluation</span>
+        <h1>What the Evidence Shows So Far</h1>
+        <p class="lead">Fine-tuning is ongoing, so every figure here is the latest independently-verified result, not a final number. Where a result is pending, this page says so rather than estimating it.</p>
+        <div class="chip-nav"><a href="#evaluation">Evaluation</a><a href="#ablation">Ablation</a><a href="#issues">Known issues</a><a href="#runs">Run examples</a></div>
+      </div>
+    </section>
+<section class="band"><div class="container"><div class="kpis"><div class="kpi"><div class="kpi-val">&minus;40%</div><div class="kpi-label">Overall depth MAE, v3 vs. zero-shot</div></div><div class="kpi"><div class="kpi-val">&minus;91%</div><div class="kpi-label">Per-class vs. global calibration (synthetic)</div></div><div class="kpi"><div class="kpi-val">0.0004&ndash;81.3</div><div class="kpi-label">TTA confidence variance range (real tile)</div></div><div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Documented fine-tuning iterations (v1&ndash;v5)</div></div></div></div></section>    <section class="band" id="evaluation">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Evaluation</span><h2>What was measured, and what the numbers show</h2><p class="sub">Four evaluation angles: the fine-tuned backbone against zero-shot, calibration against a global fit, uncertainty structure, and out-of-domain generalisation.</p></div>
+<div class="prose">
+<p>Because the backbone is trained with a scale-invariant loss, its raw output is not directly comparable to ground-truth metres &mdash; each prediction is aligned to the reference via a per-image scale correction before any error is computed. That alignment is done in <strong>linear space</strong> (median ratio of prediction to target), not log space: an earlier log-space alignment was distorted by the roughly 34% of pixels sitting near 0&nbsp;m height (ground/road), so linear alignment is the method used for every number below. Per-class Mean Absolute Error (MAE) is computed on a fixed 30-tile evaluation sample per run, and every reported run is compared against both the zero-shot backbone and the checkpoint it resumed from &mdash; a run that beats zero-shot but loses to its own resumed-from baseline is treated as a regression, not progress. That comparison is exactly how v5&rsquo;s structure-loss experiment was caught.</p>
+</div><div class="tabs" data-tabs><div class="tab-list" role="tablist"><button class="tab-btn active" data-tab="res0" role="tab" aria-selected="true">Backbone</button><button class="tab-btn" data-tab="res1" role="tab" aria-selected="false">Calibration</button><button class="tab-btn" data-tab="res2" role="tab" aria-selected="false">Uncertainty</button><button class="tab-btn" data-tab="res3" role="tab" aria-selected="false">Generalisation</button></div><div class="tab-panel active" id="res0" role="tabpanel"><p style="color:var(--text-muted);max-width:90ch;">The most recent independently-verified per-class table. Fine-tuning is ongoing; v4 is the current production checkpoint (12 unfrozen blocks, same loss) but has not yet been re-evaluated on this table &mdash; it will be added once reported, not estimated from the v3 trend.</p><div class="table-wrap"><table class="dtable"><thead><tr><th>Class</th><th>Zero-shot MAE</th><th>v3 MAE</th><th>Change</th></tr></thead><tbody><tr><td>Overall</td><td>6.996 m</td><td>4.223 m</td><td>&minus;40%</td></tr><tr><td>Building</td><td>5.943 m</td><td>3.340 m</td><td>&minus;44%</td></tr><tr><td>Tree</td><td>9.415 m</td><td>6.094 m</td><td>&minus;35%</td></tr><tr><td>Ground / road / low-vegetation</td><td>&mdash;</td><td>&mdash;</td><td>&minus;38% to &minus;58%</td></tr></tbody></table></div></div><div class="tab-panel" id="res1" role="tabpanel"><p style="color:var(--text-muted);max-width:90ch;">In a synthetic multi-bias test with a known, different bias injected per class, per-class calibration reduced error by roughly <strong>91%</strong> relative to a single global affine fit &mdash; the calibration stage&rsquo;s own, isolated contribution, separate from the backbone gains above.</p>
+<div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div>On a real end-to-end test tile, most fitted per-class slopes came out near zero (ground a=0.0017, building a=&minus;0.0179) &mdash; meaning the fit is largely predicting each class&rsquo;s constant mean rather than using Stage 1&rsquo;s pixel-level signal. Full numbers in <a href="documentation.html#doc-calnumbers">Documentation</a>.</div></div></div><div class="tab-panel" id="res2" role="tabpanel"><p style="color:var(--text-muted);max-width:90ch;">On a real held-out GAMUS tile, TTA produced a variance range of <strong>0.0004&ndash;81.3</strong> (mean 6.2) &mdash; a genuinely structured signal, not the flat fallback MC-Dropout produced &mdash; with confidence visibly lowest at building and tree-canopy edges, exactly where height discontinuities make prediction hardest.</p>
+<figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Confidence map showing structured, non-flat variance concentrated at object edges." loading="lazy"><figcaption><b>Figure 11.</b> Confidence map showing structured, non-flat variance concentrated at object edges.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div><div class="tab-panel" id="res3" role="tabpanel"><p style="color:var(--text-muted);max-width:90ch;">Real Sentinel-2 imagery over New Delhi, Kolkata, and the Gangotri Glacier region (hilly terrain GAMUS&rsquo;s five US cities do not contain) produced structurally plausible output once GSD normalisation was fixed.</p>
+<div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div>This is a qualitative check only. No LiDAR ground truth exists for these scenes, so there is no accuracy number to report &mdash; only whether the output structure is plausible.</div></div></div></div>
+      </div>
+    </section>
+    <section class="band alt" id="ablation">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Ablation</span><h2>Five iterations, kept in full</h2><p class="sub">Including the run that failed &mdash; the reason it failed is itself a finding, not something to hide.</p></div>
+<ol class="timeline-v"><li class="bad"><h4>v1 &mdash; 2 unfrozen blocks</h4><p>Scale-invariant loss only. Buildings and trees came out as blurry, low-detail blobs &mdash; the first sign that a plain pointwise loss is not enough.</p></li><li class="bad"><h4>v2 &mdash; 6 unfrozen blocks</h4><p>Added gradient and class-weighted loss. <strong>Bug:</strong> the class-weighting code targeted the wrong class ID (road instead of tree). The apparent improvement in this run was illusory.</p></li><li class=""><h4>v3 &mdash; 6 unfrozen blocks</h4><p>Corrected class IDs; building and tree weighted together as intended. Confirmed real: overall MAE fell 6.996&nbsp;m &rarr; 4.223&nbsp;m (&minus;40%) against zero-shot.</p></li><li class="now"><h4>v4 &mdash; 12 unfrozen blocks (current)</h4><p>Same three-term loss, wider unfreeze. This is the production checkpoint today. Its own per-class table has not yet been re-reported &mdash; see the callout below.</p></li><li class="bad"><h4>v5 &mdash; 12 unfrozen blocks</h4><p>Added a fourth &ldquo;structure loss&rdquo; term meant to encourage flat roofs. <strong>Abandoned:</strong> it regressed MAE across every land-cover class. The shape problem it was trying to solve was fixed instead as post-processing (see <a href="documentation.html#doc-planefit">Documentation</a>).</p></li></ol><div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div><strong>v4 status.</strong> Confirmed as the current production checkpoint by inspection of the shipped pipeline. Its full per-class MAE table is pending re-report; the v3 table above remains the last independently-verified numbers on record.</div></div>
+      </div>
+    </section>
+    <section class="band" id="issues">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Known Issues</span><h2>What is not resolved yet</h2></div>
+<div class="stack"><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div><strong>Generalisation testing is qualitative only.</strong> No ground truth exists for the real-world Sentinel-2 test scenes.</div></div><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div><strong>Raw output has pixel-level noise</strong> that looks poor fed directly into a mesh; the guided filter helps but cannot invent detail Stage 1 never predicted. A true fix means retraining with more unfrozen blocks and an edge-aware loss term.</div></div><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div><strong>SRTM live fetch</strong> was failing due to a missing system-level GDAL CLI dependency &mdash; diagnosed and documented, not yet confirmed fixed on a fresh run.</div></div><div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div><strong>The frontend confidence-layer toggle</strong> was reported not working as of the last check; not yet re-verified.</div></div></div>
+      </div>
+    </section>
+    <section class="band alt" id="runs">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">Run Examples</span><h2>Two full runs, end to end</h2><p class="sub">Click a run to see its inputs, outputs and parameters. More examples will be added as they are captured from confirmed pipeline runs.</p></div>
+<details class="run">
+  <summary>
+    <div class="run-thumb"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="" loading="lazy"><figcaption><span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div>
+    <div>
+      <div class="run-title">Run Example 1 &mdash; GAMUS held-out tile, urban core</div>
+      <div class="run-desc">Dense building cover, v3 checkpoint, georeferenced input. Full Stage 1&rarr;3 output with calibration and confidence.</div>
+      <span class="tag blue">v3 checkpoint</span><span class="tag green">Georeferenced</span><span class="tag">Urban</span>
+    </div>
+    <div class="run-open">View details</div>
+  </summary>
+  <div class="run-body">
+    <div class="g4"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Input RGB tile" loading="lazy"><figcaption>Input RGB tile<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Raw relative height" loading="lazy"><figcaption>Raw relative height<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Calibrated absolute DSM" loading="lazy"><figcaption>Calibrated absolute DSM<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Confidence map" loading="lazy"><figcaption>Confidence map<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div>
+    <h4>Run parameters</h4>
+    <div class="table-wrap"><table class="dtable"><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Checkpoint</td><td>v3 (6 unfrozen blocks)</td></tr><tr><td>Input</td><td>GAMUS held-out tile, GeoTIFF</td></tr><tr><td>Calibration reference</td><td>SRTM 30 m, per-class fit</td></tr><tr><td>TTA passes</td><td>8</td></tr></tbody></table></div>
+    <h4>Notes</h4>
+    <p class="card-text">Placeholder entry &mdash; images and exact per-tile metrics to be filled in once exported from a confirmed run.</p>
+  </div>
+</details><details class="run">
+  <summary>
+    <div class="run-thumb"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="" loading="lazy"><figcaption><span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div>
+    <div>
+      <div class="run-title">Run Example 2 &mdash; Sentinel-2, Gangotri Glacier region</div>
+      <div class="run-desc">Out-of-domain generalisation check: hilly, non-urban terrain absent from GAMUS&rsquo;s five training cities. Qualitative only, no ground truth.</div>
+      <span class="tag blue">v3 checkpoint</span><span class="tag amber">No ground truth</span><span class="tag">Hilly terrain</span>
+    </div>
+    <div class="run-open">View details</div>
+  </summary>
+  <div class="run-body">
+    <div class="g4"><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Input RGB (Sentinel-2)" loading="lazy"><figcaption>Input RGB (Sentinel-2)<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Raw relative height" loading="lazy"><figcaption>Raw relative height<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="3D render" loading="lazy"><figcaption>3D render<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Confidence map" loading="lazy"><figcaption>Confidence map<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div>
+    <h4>Run parameters</h4>
+    <div class="table-wrap"><table class="dtable"><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>Checkpoint</td><td>v3 (6 unfrozen blocks)</td></tr><tr><td>Input</td><td>Sentinel-2 MSI, 10 m, via Wikimedia Commons</td></tr><tr><td>Calibration reference</td><td>None applied &mdash; relative output only</td></tr><tr><td>Ground truth</td><td>None available</td></tr></tbody></table></div>
+    <h4>Notes</h4>
+    <div class="callout callout-warning"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div><div>This example exists to check that output stays structurally plausible outside the training domain, not to report accuracy. Treat it as a plausibility check only.</div></div>
+  </div>
+</details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div class="footer-copyright">DepthWizard &mdash; single-view height estimation &amp; 3D terrain reconstruction research.</div>
+        <div class="footer-links">
+          <a href="./index.html">Home</a><a href="./research.html">Research</a><a href="./methodology.html">Methodology</a><a href="./results.html">Results</a><a href="./conclusions.html">Conclusions</a><a href="./documentation.html">Documentation</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="./js/navigation.js"></script>
+  <script src="./js/main.js"></script>
+  <script src="./js/ui.js"></script>
+</body>
+</html>

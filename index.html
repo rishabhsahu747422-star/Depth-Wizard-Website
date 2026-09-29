@@ -3,16 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="DepthWizard — Single-View Height Estimation &amp; 3D Terrain Reconstruction. Automated monocular elevation extraction, per-land-cover scale calibration, and interactive 3D flythrough from optical imagery.">
-  <title>DepthWizard — Single-View Height Estimation &amp; 3D Terrain Reconstruction</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Inter:wght;500;600;700;800&family=JetBrains+Mono:wght;500;600&display=swap" rel="stylesheet">
+  <meta name="description" content="DepthWizard: single-view height estimation and 3D terrain reconstruction from optical imagery, using a fine-tuned depth foundation model and per-land-cover scale calibration.">
+  <title>DepthWizard — Single-View Height Estimation & 3D Terrain Reconstruction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-
-  <!-- Site Navigation Header -->
   <header class="site-header">
     <div class="nav-container">
       <a href="./index.html" class="nav-brand">
@@ -25,27 +21,21 @@
         </div>
         <div class="brand-text">
           <span class="brand-title">DEPTHWIZARD</span>
-          <span class="brand-tag">RESEARCH PORTAL</span>
+          <span class="brand-tag">RESEARCH PROJECT</span>
         </div>
       </a>
-
-      <!-- Desktop & Mobile Navigation Links -->
       <nav>
         <ul class="nav-menu">
           <li><a href="./index.html" class="nav-link active">Home</a></li>
-          <li><a href="./pages/research.html" class="nav-link">Research</a></li>
-          <li><a href="./pages/methodology.html" class="nav-link">Methodology</a></li>
-          <li><a href="./pages/dataset.html" class="nav-link">Datasets</a></li>
-          <li><a href="./pages/visualizations.html" class="nav-link">3D Visualization</a></li>
-          <li><a href="./documentation/index.html" class="nav-link">Documentation</a></li>
-          <li><a href="./pages/references.html" class="nav-link">References</a></li>
-          <li><a href="./pages/about.html" class="nav-link">About</a></li>
+          <li><a href="./research.html" class="nav-link">Research</a></li>
+          <li><a href="./methodology.html" class="nav-link">Methodology</a></li>
+          <li><a href="./results.html" class="nav-link">Results</a></li>
+          <li><a href="./conclusions.html" class="nav-link">Conclusions</a></li>
         </ul>
       </nav>
-
       <div class="nav-actions">
-        <a href="./documentation/index.html" class="btn btn-nav btn-primary">
-          <span>Read Docs</span>
+        <a href="./documentation.html" class="btn btn-nav btn-primary">
+          <span>Documentation</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </a>
         <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -56,517 +46,108 @@
   </header>
 
   <main>
-    <!-- Hero Section -->
-    <section class="hero">
+
+    <section class="home-hero">
       <div class="container">
-        <div class="hero-content">
-          <div class="hero-meta-row">
-            <span class="badge badge-cyan badge-status">Independent Research Platform</span>
-            <span class="badge badge-blue">Monocular Elevation Extraction</span>
-            <span class="badge" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;">3D Terrain Reconstruction</span>
+        <div class="home-hero-grid">
+          <div class="intro">
+            <div class="hero-meta-row"><span class="badge badge-blue">Research Project</span></div>
+            <h1 class="hero-title">Recovering Terrain Height from a <span class="highlight">Single Image</span></h1>
+            <p class="hero-subtitle">Single-view height estimation and 3D terrain reconstruction from optical imagery</p>
+            <p>Knowing how high the ground, the buildings and the trees stand is the starting point for flood modelling, infrastructure planning, disaster response and environmental monitoring. Today that information is almost always <em>measured</em> &mdash; by airborne LiDAR, by pairs of overlapping satellite images, or by radar &mdash; and each of those routes needs dedicated acquisition. DepthWizard asks a different question: how much of that elevation can be <em>inferred</em> from one ordinary optical image, the most abundant kind of Earth-observation data there is?</p>
+            <p>Our answer is a three-stage pipeline. A foundation monocular depth model, Depth Anything V2, is fine-tuned on the GAMUS remote-sensing benchmark so that it reads top-down imagery correctly. Its relative height predictions are then converted to metres by a scale calibration fitted separately for each land-cover class against SRTM 30&nbsp;m reference elevation, and every pixel receives a confidence estimate from test-time augmentation. The result is a digital surface model that can be explored as a 3D terrain in the browser.</p>
+            <p>The system accepts georeferenced imagery (GeoTIFF, producing an absolute DSM in metres) and plain images without coordinates (producing a relative DSM). It runs entirely on local compute and is a research prototype: fine-tuning is still in progress, so every figure on this site is reported as the latest verified result and is updated as new runs complete.</p>
           </div>
-
-          <h1 class="hero-title">
-            From a Single Image to a <span class="highlight">3D Understanding</span> of Terrain.
-          </h1>
-
-          <p class="hero-subtitle">
-            Automated single-view height estimation, semantic-aware scale calibration, and real-time interactive 3D terrain reconstruction from optical satellite and aerial imagery.
-          </p>
-
-          <div class="hero-abstract">
-            <strong>System Overview:</strong> DepthWizard eliminates the dependency on cost-prohibitive stereo-pair photography, airborne LiDAR, and radar interferometry. By fine-tuning foundation vision backbones (Depth Anything V2) on top-down remote-sensing benchmarks (GAMUS) and anchoring relative predictions to coarse reference DEMs (SRTM 30m) via per-land-cover calibration, DepthWizard produces high-fidelity Digital Surface Models (DSMs) with quantifiable uncertainty and navigable in-browser 3D flythroughs.
-          </div>
-
-          <div class="hero-cta-group">
-            <a href="./pages/research.html" class="btn btn-primary">
-              <span>Read Research Article</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-            </a>
-            <a href="./pages/methodology.html" class="btn btn-secondary">
-              <span>Explore 3-Stage Pipeline</span>
-            </a>
-            <a href="./pages/visualizations.html" class="btn btn-outline">
-              <span>Interactive 3D Viewport</span>
-            </a>
-          </div>
-
-          <!-- Research Key Highlights / Telemetry Metrics -->
-          <div class="hero-stats">
-            <div class="stat-card">
-              <div class="stat-value">Depth Anything V2</div>
-              <div class="stat-label">Vision Foundation Backbone</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">11,507 Tiles</div>
-              <div class="stat-label">GAMUS Fine-Tuning Corpus</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">-44% Error</div>
-              <div class="stat-label">Building Calibration Gain</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value">16-bit DSM</div>
-              <div class="stat-label">Sub-Meter Height Precision</div>
-            </div>
+          <div>
+<figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="A single optical input and the 3D terrain reconstructed from it." loading="lazy"><figcaption><b>Figure 1.</b> A single optical input and the 3D terrain reconstructed from it.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure>
           </div>
         </div>
       </div>
     </section>
-
-    <!-- Fundamental Problem Section -->
-    <section class="section" style="border-top: 1px solid var(--border-subtle); background: var(--color-surface);">
-      <div class="container-reading">
-        <span class="badge badge-cyan" style="margin-bottom: 0.75rem;">The Core Challenge</span>
-        <h2 style="font-size: 2rem; margin-bottom: 1rem;">Why Single-View Height Estimation is Difficult</h2>
-        <p style="font-size: 1.1rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 2rem;">
-          Traditional elevation mapping relies on multi-view geometry (stereo-photogrammetry), laser scanning (LiDAR), or Interferometric Synthetic Aperture Radar (InSAR). These methods are sensor-dependent, flight-intensive, and computationally demanding. Single optical images are abundant, but converting a 2D image into 3D topography presents two severe physical hurdles:
-        </p>
-
-        <div class="grid-2" style="gap: 1.5rem; margin-bottom: 2.5rem;">
-          <div class="card" style="border-left: 4px solid var(--accent-blue);">
-            <h3 style="font-size: 1.2rem; color: var(--accent-blue); margin-bottom: 0.5rem;">1. The Nadir Domain Gap</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-              Foundational monocular depth models are trained almost exclusively on egocentric, horizontal perspective photos (e.g., indoor rooms, driving sequences). In nadir (top-down) remote sensing, conventional perspective vanishing points vanish. The model must learn structural height primarily from sun shadows, rooftop geometries, and textural gradients.
-            </p>
-          </div>
-
-          <div class="card" style="border-left: 4px solid var(--accent-cyan);">
-            <h3 style="font-size: 1.2rem; color: var(--accent-cyan); margin-bottom: 0.5rem;">2. Scale &amp; Offset Ambiguity</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
-              Monocular vision models predict <em>relative depth</em> (scale-agnostic structural variation) rather than true metric height. A tall skyscraper in a low-resolution tile and a low bungalow in an ultra-high-resolution crop can produce identical relative gradients. Without external anchoring, relative depth cannot be used for engineering or disaster risk assessment.
-            </p>
-          </div>
-        </div>
-
-        <!-- Transformation Flow Diagram -->
-        <div style="background: var(--color-surface-soft); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 1.5rem; text-align: center;">
-          <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">
-            THE DEPTHWIZARD TRANSLATION PATHWAY
-          </div>
-          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.75rem;">
-            <span style="background: #ffffff; border: 1px solid #cbd5e1; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600;">Optical RGB Image</span>
-            <span style="color: var(--accent-blue); font-weight: 800;">&rarr;</span>
-            <span style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600;">Relative Depth (nDSM)</span>
-            <span style="color: var(--accent-blue); font-weight: 800;">&rarr;</span>
-            <span style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600;">SRTM 30m Calibration</span>
-            <span style="color: var(--accent-blue); font-weight: 800;">&rarr;</span>
-            <span style="background: #faf5ff; border: 1px solid #e9d5ff; color: #6b21a8; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600;">Absolute Metric DSM</span>
-            <span style="color: var(--accent-blue); font-weight: 800;">&rarr;</span>
-            <span style="background: #ffffff; border: 1px solid #cbd5e1; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600;">Navigable 3D Mesh</span>
-          </div>
-        </div>
+    <section class="band alt" id="problem">
+      <div class="container">
+        <div class="band-head"><span class="eyebrow">The Problem</span><h2>Why recovering height from one image is hard</h2><p class="sub">A single photograph contains no direct measurement of height. Closing that gap takes a learned model, an external reference, and care about resolution.</p></div>
+<div class="split "><div><div class="prose">
+<h3>Elevation is expensive to measure</h3>
+<p>High-resolution elevation models are produced by instruments that must be pointed at the ground on purpose. Airborne LiDAR is highly accurate, but each survey needs an aircraft, a flight plan, favourable weather and substantial processing. Stereo photogrammetry recovers height from two or more overlapping images taken from different angles, so it depends on repeat acquisitions and is easily defeated by cloud cover. Interferometric radar (InSAR) sees through cloud, but its measurements degrade with surface decorrelation and atmospheric delay, and steep terrain introduces layover and shadow distortions. For a specific site at a specific time, any of these can mean waiting weeks or having no data at all.</p>
+<h3>Images are abundant, but they are flat</h3>
+<p>Optical satellite and aerial imagery, by contrast, is archived at enormous scale and is often available within hours. It is rarely used for elevation because a single image records brightness and colour, not distance. A roof and a car park can have the same colour and very different heights.</p>
+<h3>The mathematical obstacle</h3>
+<p>Recovering height from one image is an ill-posed inverse problem: infinitely many three-dimensional scenes project onto exactly the same two-dimensional picture. A neural network can still learn strong priors about how the world tends to look &mdash; that shadows fall beside tall objects, that roofs have edges, that canopy has a characteristic texture &mdash; and so predict a plausible <em>relative</em> height for every pixel. What it cannot recover from the picture alone is the absolute scale and offset that turn those relative values into metres. That final step needs information from outside the image.</p>
+<h3>The nadir domain gap</h3>
+<p>Modern depth foundation models are trained overwhelmingly on ground-level, perspective photographs, where vanishing lines, horizon position and object size give strong depth cues. A satellite looks straight down. Those cues vanish, and the model must rely on cast shadows, roof-edge geometry and texture instead. The pixel scale also differs: a model trained on tiles at roughly 0.33&nbsp;m per pixel behaves unpredictably when handed an image with a very different ground-sample distance. Adapting a foundation model to this geometry, and controlling for resolution, is a research problem in its own right.</p>
+</div></div><div class="stack"><div class="diagram"><div class="mermaid">
+graph TD
+  I["Single optical image"] --> M["Depth model<br/>(learned priors)"]
+  M --> R["Relative height<br/>correct shape, unknown scale and offset"]
+  S["External reference<br/>SRTM 30 m elevation"] --> K["Per-class calibration"]
+  L["Land-cover labels"] --> K
+  R --> K
+  K --> A["Absolute height in metres"]
+</div><div class="diagram-cap">How the scale ambiguity is resolved: the network supplies shape, an external reference supplies scale.</div></div>
+<div class="callout callout-info"><div class="callout-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></div><div><strong>What a single-image model can and cannot promise.</strong> It can recover the relative structure of a scene and, given a reference, approximate absolute height. It is not a replacement for survey-grade elevation data where precision is required.</div></div></div></div>
       </div>
     </section>
-
-    <!-- Core Pipeline Section -->
-    <section class="section">
+    <section class="band" id="objectives">
       <div class="container">
-        <div class="section-header text-center">
-          <span class="badge badge-blue">System Engineering</span>
-          <h2 class="section-title">The 3-Stage End-to-End Architecture</h2>
-          <p class="section-desc">
-            DepthWizard operates via three mathematically decoupled stages, converting raw optical pixels into georeferenced metric surfaces and navigable 3D scenes.
-          </p>
-        </div>
-
-        <div style="margin: 2rem 0; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.5rem; box-shadow: var(--shadow-sm);">
-          <img src="./assets/diagrams/pipeline-architecture.svg" alt="DepthWizard System Architecture Pipeline" style="width: 100%; height: auto; border-radius: var(--radius-md);">
-        </div>
-
-        <div class="grid-3" style="margin-top: 2.5rem; gap: 1.5rem;">
-          <div class="card">
-            <div class="card-icon" style="color: var(--accent-blue);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-            </div>
-            <span class="badge badge-blue" style="margin-bottom: 0.5rem;">Stage 01</span>
-            <h3 class="card-title">Elevation Extraction</h3>
-            <p class="card-desc">
-              Deploys Depth Anything V2 (Vision Transformer backbone) fine-tuned on GAMUS. Enforces scale-invariant depth loss and multi-scale gradient constraints to sharply preserve building boundaries and terrain breaks.
-            </p>
-            <div class="card-footer">
-              <a href="./content/project/methodology.html" class="ref-link-item">Explore Stage 1 Details &rarr;</a>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-icon" style="color: var(--accent-teal);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            </div>
-            <span class="badge badge-teal" style="margin-bottom: 0.5rem;">Stage 02 &bull; Innovation 1</span>
-            <h3 class="card-title">Scale Calibration</h3>
-            <p class="card-desc">
-              Replaces conventional single global affine transforms with class-specific regression. Anchored against SRTM 30m, fitting unique scale and offset parameters for buildings, trees, and ground surfaces.
-            </p>
-            <div class="card-footer">
-              <a href="./content/project/land-cover-calibration.html" class="ref-link-item">Explore Calibration Details &rarr;</a>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-icon" style="color: var(--accent-indigo);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            </div>
-            <span class="badge badge-indigo" style="margin-bottom: 0.5rem;">Stage 03 &bull; Innovation 2</span>
-            <h3 class="card-title">3D Flythrough &amp; Uncertainty</h3>
-            <p class="card-desc">
-              Decodes 16-bit heightmaps to drive GPU vertex displacement on a textured Three.js mesh. Supports first-person WASD flythrough, cross-section profiling, and toggleable MC-dropout confidence heatmaps.
-            </p>
-            <div class="card-footer">
-              <a href="./pages/visualizations.html" class="ref-link-item">Explore 3D Flythrough &rarr;</a>
-            </div>
-          </div>
-        </div>
+        <div class="band-head"><span class="eyebrow">Objectives</span><h2>What this project sets out to do</h2><p class="sub">Six objectives, each paired with the evidence that will show whether it was met.</p></div>
+<div class="g3"><div class="card"><div class="num">01</div><h4>Adapt a depth foundation model to nadir imagery</h4><div class="card-text">Fine-tune Depth Anything V2 on GAMUS (11,507 paired RGB and height tiles) so that predicted height reflects roofs, canopy and ground in top-down imagery rather than the perspective-scene priors it was pretrained with.</div><div class="card-meta"><strong>Measured by:</strong> per-land-cover-class mean absolute error against the zero-shot backbone on held-out tiles.</div></div><div class="card"><div class="num">02</div><h4>Recover absolute height in metres</h4><div class="card-text">For georeferenced input, anchor the relative prediction to SRTM 30&nbsp;m elevation, fitting the scale and offset per land-cover class. For input without coordinates, deliver a self-consistent relative DSM and say so.</div><div class="card-meta"><strong>Measured by:</strong> error of per-class versus single global calibration in a controlled multi-bias test, and behaviour on real tiles.</div></div><div class="card"><div class="num">03</div><h4>Stay reliable when resolution changes</h4><div class="card-text">Normalise ground-sample distance so that imagery at arbitrary resolution reaches the model at a pixel scale close to what it was trained on, instead of silently producing structurally meaningless output.</div><div class="card-meta"><strong>Measured by:</strong> whether output structure remains meaningful on Sentinel-2 imagery outside the training resolution (qualitative).</div></div><div class="card"><div class="num">04</div><h4>Report confidence, not just height</h4><div class="card-text">Produce a per-pixel confidence map from test-time augmentation, so that a user can see where the prediction is trustworthy and where it is not.</div><div class="card-meta"><strong>Measured by:</strong> whether the variance signal is structured and concentrates at height discontinuities rather than being flat.</div></div><div class="card"><div class="num">05</div><h4>Deliver an interactive 3D explorer</h4><div class="card-text">Render the calibrated surface as a browser-based terrain model with elevation, solid and imagery modes and both orbit and first-person navigation, running on the user&rsquo;s own machine with no hosted service.</div><div class="card-meta"><strong>Measured by:</strong> a complete input-to-3D run on local compute using only the packaged outputs.</div></div><div class="card"><div class="num">06</div><h4>Report the evidence honestly</h4><div class="card-text">Keep failed experiments in the record, mark pending results as pending, and make every number on the site traceable to a documented run.</div><div class="card-meta"><strong>Measured by:</strong> the full iteration history and the technical archive in <a href="documentation.html">Documentation</a>.</div></div></div>
       </div>
     </section>
-
-    <!-- Key Technical Innovations Section -->
-    <section class="section" style="background: var(--color-surface); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <section class="band alt" id="solution">
       <div class="container">
-        <div class="section-header text-center">
-          <span class="badge badge-cyan">Research Contributions</span>
-          <h2 class="section-title">Two Major Technical Breakthroughs</h2>
-          <p class="section-desc">DepthWizard introduces specific methodological solutions to remote sensing limitations.</p>
-        </div>
-
-        <div class="grid-2" style="gap: 2rem; margin-top: 2rem;">
-          <!-- Innovation 1 Card -->
-          <div class="card" style="border: 1px solid #bbf7d0; background: #ffffff;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-              <span class="badge badge-teal" style="font-size: 0.8rem;">INNOVATION #1</span>
-              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #166534; font-weight: 700;">Error Drop: -44%</span>
-            </div>
-            <h3 style="font-size: 1.35rem; color: #0f172a; margin-bottom: 0.75rem;">Per-Land-Cover-Class Scale Calibration</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
-              Existing methods attempt a single affine fit <code>H = a &bull; h_rel + b</code> across the entire satellite scene. However, neural depth models produce systematic biases depending on material reflectance and vertical morphology. Man-made buildings, permeable tree canopies, and flat tarmac experience divergent relative-depth scaling.
-            </p>
-            <div style="background: #f0fdf4; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #dcfce7;">
-              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: #15803d; margin-bottom: 0.25rem;">
-                H_abs(x, y) = a_k &bull; h_rel(x, y) + b_k  [k &isin; Classes]
-              </div>
-              <div style="font-size: 0.85rem; color: #166534;">
-                Classes: Building, Tree, Ground, Road, Water, Vegetation
-              </div>
-            </div>
-            <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; padding-left: 1.25rem;">
-              <li><strong>Building Height Error:</strong> Reduced by ~44% vs global scene-wide fit.</li>
-              <li><strong>Tree Canopy Height Error:</strong> Reduced by ~35% vs baseline.</li>
-              <li><strong>Robust Regression:</strong> Iterative re-weighted least squares against SRTM 30m grid.</li>
-            </ul>
-          </div>
-
-          <!-- Innovation 2 Card -->
-          <div class="card" style="border: 1px solid #e9d5ff; background: #ffffff;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-              <span class="badge badge-indigo" style="font-size: 0.8rem;">INNOVATION #2</span>
-              <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #6b21a8; font-weight: 700;">Variance Mapping</span>
-            </div>
-            <h3 style="font-size: 1.35rem; color: #0f172a; margin-bottom: 0.75rem;">MC-Dropout &amp; Confidence Quantification</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
-              A depth estimate is not equally reliable across all regions. Monocular predictions frequently degrade inside cast shadows, dark water bodies, or dense foliage. Instead of presenting the Digital Surface Model as uniformly certain, DepthWizard generates an explicit confidence variance map.
-            </p>
-            <div style="background: #faf5ff; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #f3e8ff;">
-              <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 700; color: #7c3aed; margin-bottom: 0.25rem;">
-                &sigma;&sup2;(x, y) = (1 / N) &sum; [ h_i(x, y) - &mu;(x, y) ]&sup2;
-              </div>
-              <div style="font-size: 0.85rem; color: #6b21a8;">
-                Computed via N fixed test-time augmentation (TTA) passes at inference
-              </div>
-            </div>
-            <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; padding-left: 1.25rem;">
-              <li><strong>Interactive Heatmap:</strong> Toggleable in the 3D viewer (RGB &harr; Confidence).</li>
-              <li><strong>Disaster Risk Governance:</strong> Informs decision-makers where predictions are trustworthy.</li>
-              <li><strong>Zero Cloud Overhead:</strong> Lightweight inference-time perturbation.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Interactive Live Simulation & Profile Tool -->
-    <section class="section">
-      <div class="container">
-        <div class="section-header text-center">
-          <span class="badge badge-blue">Interactive Verification</span>
-          <h2 class="section-title">Terrain Cross-Section &amp; Profile Analysis</h2>
-          <p class="section-desc">
-            Test DepthWizard's real output data generated from the benchmark tile: click points along the distance axis to inspect calculated metric elevation.
-          </p>
-        </div>
-
-        <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-md); max-width: 960px; margin: 0 auto;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); padding-bottom: 1rem;">
-            <div>
-              <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">Two-Point Cross-Section Tool</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted);">Transect line from Point A (Ground) to Point B (High-Rise Rooftop)</div>
-            </div>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <span class="badge badge-teal">H_min: 0.12m</span>
-              <span class="badge badge-blue">H_max: 24.87m</span>
-              <span class="badge badge-indigo">GSD: 0.30m</span>
-            </div>
-          </div>
-
-          <!-- Interactive Profile Canvas / SVG -->
-          <div style="position: relative; width: 100%; height: 260px; background: var(--color-surface-soft); border-radius: var(--radius-md); border: 1px solid var(--color-border); overflow: hidden;">
-            <svg id="profile-interactive-svg" viewBox="0 0 800 240" width="100%" height="100%" style="display: block;">
-              <!-- Grid Lines -->
-              <line x1="50" y1="30" x2="750" y2="30" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-              <line x1="50" y1="80" x2="750" y2="80" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-              <line x1="50" y1="130" x2="750" y2="130" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-              <line x1="50" y1="180" x2="750" y2="180" stroke="#cbd5e1" stroke-width="1.5"/>
-
-              <!-- Labels Y -->
-              <text x="18" y="34" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="10">25m</text>
-              <text x="18" y="84" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="10">15m</text>
-              <text x="18" y="134" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="10">5m</text>
-              <text x="18" y="184" fill="#64748b" font-family="'JetBrains Mono', monospace" font-size="10">0m</text>
-
-              <!-- Profile Area Fill -->
-              <path d="M 60 180 L 110 178 L 135 177 L 140 85 L 210 85 L 215 177 L 290 174 L 340 115 L 390 135 L 415 175 L 515 172 L 520 50 L 605 50 L 610 176 L 740 178 L 740 180 Z" fill="rgba(37, 99, 235, 0.12)"/>
-
-              <!-- Profile Line -->
-              <path d="M 60 180 L 110 178 L 135 177 L 140 85 L 210 85 L 215 177 L 290 174 L 340 115 L 390 135 L 415 175 L 515 172 L 520 50 L 605 50 L 610 176 L 740 178" stroke="#2563eb" stroke-width="3" fill="none"/>
-
-              <!-- Clickable Sample Points -->
-              <g class="profile-point" data-dist="0m" data-elev="2.1m" data-class="Ground" transform="translate(60, 180)">
-                <circle cx="0" cy="0" r="5" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-              </g>
-              <g class="profile-point" data-dist="75m" data-elev="15.2m" data-class="Commercial Building" transform="translate(175, 85)">
-                <circle cx="0" cy="0" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
-              </g>
-              <g class="profile-point" data-dist="150m" data-elev="8.4m" data-class="Tree Canopy" transform="translate(365, 125)">
-                <circle cx="0" cy="0" r="6" fill="#22c55e" stroke="#ffffff" stroke-width="2"/>
-              </g>
-              <g class="profile-point" data-dist="240m" data-elev="24.8m" data-class="High-Rise Tower" transform="translate(560, 50)">
-                <circle cx="0" cy="0" r="6" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
-              </g>
-              <g class="profile-point" data-dist="300m" data-elev="2.8m" data-class="Paved Road" transform="translate(740, 178)">
-                <circle cx="0" cy="0" r="5" fill="#64748b" stroke="#ffffff" stroke-width="2"/>
-              </g>
-            </svg>
-          </div>
-
-          <!-- Inspector readout -->
-          <div style="margin-top: 1.25rem; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem 1.25rem;">
-            <div>
-              <span style="font-size: 0.85rem; color: var(--text-muted);">Inspected Target:</span>
-              <strong id="inspector-target" style="margin-left: 0.5rem; color: var(--text-primary);">Commercial Building (Click point above)</strong>
-            </div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;">
-              <span style="color: var(--text-muted);">Height:</span>
-              <strong id="inspector-elev" style="color: #2563eb; margin-left: 0.25rem;">15.2m</strong>
-              <span style="color: var(--text-muted); margin-left: 1rem;">Transect Dist:</span>
-              <strong id="inspector-dist" style="color: #0f172a; margin-left: 0.25rem;">75m</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Technical Architecture & Technology Differentiation -->
-    <section class="section" style="background: var(--color-surface); border-top: 1px solid var(--border-subtle);">
-      <div class="container">
-        <div class="section-header text-center">
-          <span class="badge badge-teal">Technology Stack</span>
-          <h2 class="section-title">Decoupled Engineering Stack</h2>
-          <p class="section-desc">
-            Clear separation between the main DepthWizard ML/processing backend and this independent research evidence portal.
-          </p>
-        </div>
-
-        <div class="grid-2" style="gap: 2rem; margin-top: 2rem;">
-          <!-- Main Application Stack -->
-          <div class="card">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <div class="card-icon" style="margin: 0; color: #2563eb;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
-              </div>
-              <div>
-                <h3 style="font-size: 1.25rem; color: #0f172a; margin: 0;">Main DepthWizard Software Application</h3>
-                <span style="font-size: 0.85rem; color: var(--text-muted);">Operational Processing Engine</span>
-              </div>
-            </div>
-
-            <table class="data-table" style="margin-top: 1rem;">
-              <thead>
-                <tr>
-                  <th>Component</th>
-                  <th>Technology</th>
-                  <th>Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Backbone</strong></td>
-                  <td>PyTorch / Depth Anything V2</td>
-                  <td>Vision Transformer monocular depth</td>
-                </tr>
-                <tr>
-                  <td><strong>Training</strong></td>
-                  <td>GAMUS Dataset</td>
-                  <td>11,507 paired tiles for nadir domain gap</td>
-                </tr>
-                <tr>
-                  <td><strong>Calibration</strong></td>
-                  <td>SRTM 30m / SciPy / NumPy</td>
-                  <td>Per-land-cover affine regression</td>
-                </tr>
-                <tr>
-                  <td><strong>Geospatial I/O</strong></td>
-                  <td>Rasterio / GDAL</td>
-                  <td>GeoTIFF CRS, bounds &amp; GSD parsing</td>
-                </tr>
-                <tr>
-                  <td><strong>Local Bridge</strong></td>
-                  <td>FastAPI</td>
-                  <td>Offline REST API (<code>/upload</code>, <code>/process</code>)</td>
-                </tr>
-                <tr>
-                  <td><strong>3D Engine</strong></td>
-                  <td>Three.js</td>
-                  <td>GPU vertex displacement &amp; Flythrough</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Research Website Stack -->
-          <div class="card">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <div class="card-icon" style="margin: 0; color: #059669;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-              </div>
-              <div>
-                <h3 style="font-size: 1.25rem; color: #0f172a; margin: 0;">This Research &amp; Documentation Portal</h3>
-                <span style="font-size: 0.85rem; color: var(--text-muted);">Independent Evidence Website</span>
-              </div>
-            </div>
-
-            <table class="data-table" style="margin-top: 1rem;">
-              <thead>
-                <tr>
-                  <th>Component</th>
-                  <th>Technology</th>
-                  <th>Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Structure</strong></td>
-                  <td>Semantic HTML5</td>
-                  <td>Zero build steps, 100% accessible</td>
-                </tr>
-                <tr>
-                  <td><strong>Styling</strong></td>
-                  <td>CSS3 (Custom Properties)</td>
-                  <td>Light research theme, responsive grids</td>
-                </tr>
-                <tr>
-                  <td><strong>Interactivity</strong></td>
-                  <td>Vanilla JavaScript</td>
-                  <td>Native DOM, SVG profiling &amp; modals</td>
-                </tr>
-                <tr>
-                  <td><strong>Hosting</strong></td>
-                  <td>Static GitHub Pages</td>
-                  <td>Direct push deployment, no server needed</td>
-                </tr>
-                <tr>
-                  <td><strong>Dependencies</strong></td>
-                  <td>Zero external dependencies</td>
-                  <td>No npm, no bundlers, no frameworks</td>
-                </tr>
-                <tr>
-                  <td><strong>Portability</strong></td>
-                  <td>Relative Paths</td>
-                  <td>Works offline and directly via <code>file:///</code></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <div class="band-head"><span class="eyebrow">Proposed Solution</span><h2>The DepthWizard approach</h2><p class="sub">Decouple <em>shape</em> from <em>scale</em>: let a fine-tuned foundation model predict structure, and let an external reference and land-cover labels supply the metres.</p></div>
+<div class="diagram"><div class="mermaid">
+graph LR
+  A["Optical image<br/>PNG / JPG / GeoTIFF"] --> G["GSD normalisation"]
+  G --> B["Stage 1<br/>Elevation extraction"]
+  B -->|relative height| C["Stage 2<br/>Scale calibration"]
+  B -->|8 TTA passes| U["Confidence map"]
+  R["SRTM 30 m"] -.-> C
+  L["Land-cover mask"] -.-> C
+  C -->|absolute DSM| D["Stage 3<br/>Mesh and visualisation"]
+  U --> D
+  D --> E["Interactive 3D terrain"]
+</div><div class="diagram-cap">The DepthWizard pipeline. Solid arrows carry data between stages; dashed arrows are external references.</div></div><div style="height:2rem"></div><div class="tabs" data-tabs><div class="tab-list" role="tablist"><button class="tab-btn active" data-tab="home-sol0" role="tab" aria-selected="true">Stage 1 &mdash; Elevation extraction</button><button class="tab-btn" data-tab="home-sol1" role="tab" aria-selected="false">Stage 2 &mdash; Scale calibration</button><button class="tab-btn" data-tab="home-sol2" role="tab" aria-selected="false">Confidence &mdash; Test-time augmentation</button><button class="tab-btn" data-tab="home-sol3" role="tab" aria-selected="false">Stage 3 &mdash; Visualisation</button></div><div class="tab-panel active" id="home-sol0" role="tabpanel"><h3>Predict relative height from one image</h3>
+<div class="split even"><div class="prose">
+<p><strong>What it does.</strong> A Depth Anything V2 backbone (a DINOv2 Vision Transformer encoder with a DPT decoder) takes the image, after ground-sample-distance normalisation, and predicts a relative height value for every pixel. Only the last transformer blocks and the decoder are fine-tuned; the earlier blocks keep their general visual features.</p>
+<p><strong>Why this choice.</strong> Training a height network from scratch would need far more labelled elevation data than exists for remote sensing. A pretrained depth model already encodes strong priors about edges, surfaces and layout; fine-tuning on GAMUS teaches it what those priors mean when viewed from above. A composite loss (scale-invariant, multi-scale gradient, and a penalty focused on buildings and trees) keeps edges sharp and stops the easy flat-ground pixels from dominating training.</p>
+<p><strong>Output.</strong> A relative height map, edge-refined with a guided filter using the RGB image as guide.</p></div>
+<div><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Stage 1 input tile and its predicted relative height map." loading="lazy"><figcaption><b>Figure 2.</b> Stage 1 input tile and its predicted relative height map.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div></div></div><div class="tab-panel" id="home-sol1" role="tabpanel"><h3>Turn relative height into metres</h3>
+<div class="split even"><div class="prose">
+<p><strong>What it does.</strong> The relative height map is anchored to a real elevation reference. For georeferenced input the pipeline retrieves SRTM 30&nbsp;m for the same area, resamples it to the prediction grid, and fits an affine correction <code>a&middot;h + b</code> &mdash; separately for each land-cover class &mdash; by least squares.</p>
+<p><strong>Why this choice.</strong> One correction for the whole scene assumes buildings, trees and ground all deviate from the reference in the same way. Our evaluation shows they do not, and prior work on joint height and semantic estimation reaches the same conclusion. Classes with too few pixels to fit reliably fall back to the global fit.</p>
+<p><strong>Output.</strong> An absolute DSM in metres for georeferenced input; a relative DSM otherwise.</p></div>
+<div><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Per-class calibration: relative height versus reference elevation for building, tree and ground pixels." loading="lazy"><figcaption><b>Figure 3.</b> Per-class calibration: relative height versus reference elevation for building, tree and ground pixels.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div></div></div><div class="tab-panel" id="home-sol2" role="tabpanel"><h3>Show where the prediction is trustworthy</h3>
+<div class="split even"><div class="prose">
+<p><strong>What it does.</strong> The same image is passed through the model eight times under fixed perturbations &mdash; the identity, horizontal flip, vertical flip, both flips, and four brightness or gamma shifts. Each output is mapped back to the original orientation and the per-pixel variance across the eight is the uncertainty.</p>
+<p><strong>Why this choice.</strong> Monte Carlo Dropout is the usual tool, and we tried it first. It failed here: the backbone&rsquo;s dropout probabilities are all zero, so repeated passes were numerically identical and the confidence map was a flat constant. Perturbing the <em>input</em> instead gives a signal that is real and interpretable.</p>
+<p><strong>Output.</strong> A confidence texture aligned with the height map, lowest at building and canopy edges.</p></div>
+<div><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Confidence map overlaid on the predicted surface." loading="lazy"><figcaption><b>Figure 4.</b> Confidence map overlaid on the predicted surface.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div></div></div><div class="tab-panel" id="home-sol3" role="tabpanel"><h3>Explore the result in three dimensions</h3>
+<div class="split even"><div class="prose">
+<p><strong>What it does.</strong> The calibrated surface is edge-refined, its building footprints are flattened into planar roofs using the land-cover mask, and the result is packaged as a 16-bit heightmap with a confidence texture and the source imagery. A Three.js viewer decodes the heightmap into a mesh.</p>
+<p><strong>Why this choice.</strong> A browser viewer needs no GIS software, which matters for the planners and analysts this is intended for. Sixteen bits give 65,536 height levels instead of 256, avoiding visible terracing on gentle terrain.</p>
+<p><strong>Output.</strong> An interactive terrain with elevation-colour, solid and imagery render modes, orbit and first-person flythrough navigation.</p></div>
+<div><figure class="fig"><img src="./assets/images/placeholder-figure.svg" alt="Elevation, solid and imagery render modes of the same terrain." loading="lazy"><figcaption><b>Figure 5.</b> Elevation, solid and imagery render modes of the same terrain.<span class="ph">Placeholder &mdash; real figure pending</span></figcaption></figure></div></div></div></div><h3 style="margin:2.5rem 0 0.5rem;font-size:1.3rem;">Design decisions at a glance</h3><p style="color:var(--text-muted);max-width:90ch;">Each choice below was made to answer a specific failure mode, and several were confirmed by experiments that did not work. The full record is in <a href="documentation.html">Documentation</a>.</p><div class="table-wrap"><table class="dtable"><thead><tr><th>Decision</th><th>What we chose</th><th>Alternative considered</th><th>Why</th></tr></thead><tbody><tr><td>Model source</td><td>Fine-tune a pretrained depth foundation model</td><td>Train a height network from scratch</td><td>Labelled height data is limited; pretrained priors transfer and fine-tuning adapts them.</td></tr><tr><td>Where scale is resolved</td><td>A separate calibration stage</td><td>Have the network output metres directly</td><td>Absolute scale is not recoverable from image content. Separation isolates errors and lets calibration use an external reference.</td></tr><tr><td>Calibration granularity</td><td>Per land-cover class</td><td>One global affine fit</td><td>Classes show different relative-height error; a single fit averages them together.</td></tr><tr><td>Uncertainty</td><td>Test-time augmentation, 8 fixed passes</td><td>Monte Carlo Dropout</td><td>Backbone dropout is zero, so MC Dropout variance was below 1e-8 and the map was flat.</td></tr><tr><td>Roof and edge sharpness</td><td>Post-processing after the network</td><td>A structure-loss term inside the network (run v5)</td><td>The v5 loss worsened error in every class; shape is easier to impose downstream.</td></tr><tr><td>Deployment</td><td>Local, standalone tool</td><td>Hosted GPU inference service</td><td>No compute budget for public inference; the intended users inspect specific sites themselves.</td></tr></tbody></table></div>
       </div>
     </section>
   </main>
 
-  <!-- Site Footer -->
   <footer class="site-footer">
     <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="brand-text">
-            <span class="brand-title" style="font-size:1.3rem; color:#0f172a; font-weight:800;">DEPTHWIZARD</span>
-            <span class="brand-tag" style="display:block; color:var(--accent-blue); font-size:0.75rem; letter-spacing:1px; margin-top:2px;">RESEARCH PLATFORM</span>
-          </div>
-          <p class="footer-desc">
-            Independent scientific research project advancing single-view optical height estimation, per-land-cover scale calibration, and real-time 3D terrain flythrough.
-          </p>
-          <div class="footer-meta">
-            <span>&bull; Pure HTML5 / CSS3 / Vanilla JS</span>
-            <span>&bull; GitHub Pages Static Deployment</span>
-          </div>
-        </div>
-
-        <div class="footer-links">
-          <h4>Core Research</h4>
-          <ul>
-            <li><a href="./pages/research.html">Scientific Paper</a></li>
-            <li><a href="./pages/methodology.html">3-Stage Methodology</a></li>
-            <li><a href="./pages/dataset.html">GAMUS &amp; SRTM Datasets</a></li>
-            <li><a href="./pages/visualizations.html">3D Terrain Flythrough</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-links">
-          <h4>Documentation</h4>
-          <ul>
-            <li><a href="./documentation/index.html">Documentation Portal</a></li>
-            <li><a href="./content/project/architecture.html">System Architecture</a></li>
-            <li><a href="./content/project/land-cover-calibration.html">Per-Class Calibration</a></li>
-            <li><a href="./content/project/uncertainty-estimation.html">Uncertainty Mapping</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-links">
-          <h4>Project Information</h4>
-          <ul>
-            <li><a href="./pages/about.html">About DepthWizard</a></li>
-            <li><a href="./pages/references.html">Academic References</a></li>
-            <li><a href="./content/project/evaluation.html">Validation Metrics</a></li>
-            <li><a href="./content/project/limitations.html">Mitigation Strategies</a></li>
-          </ul>
-        </div>
-      </div>
-
       <div class="footer-bottom">
-        <div class="footer-copyright">
-          &copy; 2026 DepthWizard Research Initiative. All technical rights reserved. Distributed under open scientific research documentation principles.
-        </div>
-        <div class="footer-status">
-          <span class="badge badge-teal">Status: Active Research Project</span>
+        <div class="footer-copyright">DepthWizard &mdash; single-view height estimation &amp; 3D terrain reconstruction research.</div>
+        <div class="footer-links">
+          <a href="./index.html">Home</a><a href="./research.html">Research</a><a href="./methodology.html">Methodology</a><a href="./results.html">Results</a><a href="./conclusions.html">Conclusions</a><a href="./documentation.html">Documentation</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script src="./js/project-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral', flowchart: { useMaxWidth: true, htmlLabels: true } });</script>
   <script src="./js/navigation.js"></script>
-  <script src="./js/gallery.js"></script>
   <script src="./js/main.js"></script>
-  <script>
-    // Interactive inspector hook on home page
-    document.querySelectorAll('.profile-point').forEach(pt => {
-      pt.addEventListener('click', () => {
-        const dist = pt.getAttribute('data-dist');
-        const elev = pt.getAttribute('data-elev');
-        const target = pt.getAttribute('data-class');
-        document.getElementById('inspector-target').textContent = target;
-        document.getElementById('inspector-elev').textContent = elev;
-        document.getElementById('inspector-dist').textContent = dist;
-      });
-    });
-  </script>
+  <script src="./js/ui.js"></script>
 </body>
 </html>
